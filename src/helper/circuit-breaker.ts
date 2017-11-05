@@ -1,3 +1,12 @@
+/*
+ * src/helper/circuit-breaker.ts
+ *
+ * Unauthorized copying of this file, via any medium is strictly prohibited
+ * Proprietary and confidential
+ *
+ * Created by Alex Tan Hong Pin 6/11/2017
+ * Copyright (c) 2017 alextanhongpin. All rights reserved.
+**/
 
 import * as circuitBreaker from 'opossum'
 import * as request from 'request-promise'
@@ -12,9 +21,9 @@ export interface CircuitBreakerOptions {
 
 export function DefaultCircuitBreaker(requestOptions: Options): Promise<any> {
   const options: CircuitBreakerOptions = {
-    timeout: 60000, // 1 minute
+    timeout: 300000, // 5 minutes
     errorThresholdPercentage: 50, // When 50% of the requests are failing
-    resetTimeout: 60000 // 1 minutes
+    resetTimeout: 300000 // 5 minutes
   }
   const breaker: any = circuitBreaker(request, options)
   return breaker.fire(requestOptions)

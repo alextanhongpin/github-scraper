@@ -1,10 +1,10 @@
 /*
- * src/food-service/route.js
+ * src/github-service/route.ts
  *
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Alex Tan Hong Pin 17/10/2017
+ * Created by Alex Tan Hong Pin 6/11/2017
  * Copyright (c) 2017 alextanhongpin. All rights reserved.
 **/
 
@@ -24,11 +24,12 @@ export default (model: any) => {
   async function getUser (req: Request, res: Response) {
     try {
       const request: GetUserRequest = {
+        login: req.params.id
       }
-      const result = await model.oneUser(request)
-      baseSuccessHandler(res)(result)
+      const result: GetUserResponse = await model.oneUser(request)
+      return baseSuccessHandler(res)(result)
     } catch (error) {
-      baseErrorHandler(res)(error)
+      return baseErrorHandler(res)(error)
     }
   }
 
@@ -37,8 +38,10 @@ export default (model: any) => {
   async function getRepo (req: Request, res: Response) {
     try {
       const request: GetRepoRequest = {
+        login: req.params.id,
+        page: req.query.page
       }
-      const result = await model.oneRepo(request)
+      const result: GetRepoResponse = await model.oneRepo(request)
       return baseSuccessHandler(res)(result)
     } catch (error) {
       return baseErrorHandler(res)(error)

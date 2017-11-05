@@ -1,14 +1,16 @@
 /*
- * src/food-service/store.js
+ * src/github-service/store.ts
  *
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Alex Tan Hong Pin 17/10/2017
+ * Created by Alex Tan Hong Pin 6/11/2017
  * Copyright (c) 2017 alextanhongpin. All rights reserved.
 **/
 
 import * as moment from 'moment'
+import * as fs from 'fs'
+import { promisify } from 'util'
 import { DefaultCircuitBreaker } from '../helper/circuit-breaker'
 import { 
   GetRepoRequest, GetRepoResponse,
@@ -55,10 +57,22 @@ const GithubStore = (githubToken?: string) => {
     return DefaultCircuitBreaker(options)
   }
 
+  async function saveRepos (data: any, path = 'data/repos.json'): Promise<any> {
+    const writeFileAsync = promisify(fs.writeFile)
+    return writeFileAsync(path, JSON.stringify(data), 'utf-8')
+  }
+
+  async function saveUsers (data: any, path = 'data/users.json'): Promise<any> {
+    const writeFileAsync = promisify(fs.writeFile)
+    return writeFileAsync(path, JSON.stringify(data), 'utf-8')
+  }
+
   return {
     oneRepo,
     oneUser,
-    search
+    search,
+    saveRepos,
+    saveUsers
   }
 }
 
