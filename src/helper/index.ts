@@ -8,8 +8,10 @@
  * Copyright (c) 2017 alextanhongpin. All rights reserved.
 **/
 
-function baseErrorHandler (res) {
-  return function (error) {
+import { Response } from 'express'
+
+function baseErrorHandler (res: Response) {
+  return function (error: Error) {
     return res.status(400).json({
       error: error.message,
       code: error.code
@@ -17,8 +19,8 @@ function baseErrorHandler (res) {
   }
 }
 
-function baseSuccessHandler (res) {
-  return function (body) {
+function baseSuccessHandler (res: Response) {
+  return function (body: any) {
     return res.status(200).json({
       data: body
     })

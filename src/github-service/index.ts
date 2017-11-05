@@ -8,32 +8,33 @@
  * Copyright (c) 2017 alextanhongpin. All rights reserved.
 **/
 
-import FoodStore from './store'
-import FoodModel from './model'
-import FoodRoute from './route'
+import { Router } from 'express'
+import Store from './store'
+import Model from './model'
+import Route from './route'
 
-import express from 'express'
-const router = express.Router()
+import * as  express from 'express'
+const router: Router = express.Router()
 
-const FoodService = ({ db, schema }) => {
-  const model = FoodModel({
-    store: FoodStore(db),
+const Service = ({ schema }: { schema: any }) => {
+  const model = Model({
+    store: Store(),
     schema
   })
-  const route = FoodRoute(model)
+  const route = Route(model)
 
   router
   .use(route.featureToggle)
-  .get('/', route.getFoods)
-  .get('/:id', route.getFood)
-  .post('/', route.postFood)
+  .get('/users/:id', route.getUser)
+  .get('/repos/:id', route.getRepo)
+  .get('/search', route.search)
 
   return router
 }
 
-export default (options) => {
+export default (options: any) => {
   return {
-    basePath: '/foods',
+    basePath: '/github',
     info: {
       name: 'Food Service',
       service: 'food',
@@ -54,6 +55,6 @@ export default (options) => {
         }
       }
     },
-    route: FoodService(options)
+    route: Service(options)
   }
 }

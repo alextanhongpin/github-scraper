@@ -8,7 +8,7 @@
  * Copyright (c) 2017 alextanhongpin. All rights reserved.
 **/
 
-import convict from 'convict'
+import * as convict from 'convict'
 
 const config = convict({
   port: {

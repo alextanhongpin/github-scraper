@@ -8,25 +8,25 @@
  * Copyright (c) 2017 alextanhongpin. All rights reserved.
 **/
 
-import express from 'express'
-import bodyParser from 'body-parser'
+import * as express from 'express'
+import * as bodyParser from 'body-parser'
 import config from './config'
-import DB from './database'
+// import DB from './database'
 
 import Schema from './schema'
-import FoodService from './food-service'
+import FoodService from './github-service'
 
 async function main () {
-  const app = express()
+  const app: express.Application = express()
   app.use(bodyParser.urlencoded({ extended: false }))
   app.use(bodyParser.json())
 
-  const db = await DB.connect(config.get('db'))
+  // const db = await DB.connect(config.get('db'))
   const schema = Schema()
 
   const services = [
     FoodService
-  ].map(service => service({ db, schema }))
+  ].map(service => service({ schema }))
 
   // Initialize service by looping through them
   services.forEach((service) => {

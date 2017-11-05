@@ -8,9 +8,9 @@
  * Copyright (c) 2017 alextanhongpin. All rights reserved.
 **/
 
-import foodSchema from './food.json'
+import * as foodSchema from './food.json'
 
-import Ajv from 'ajv'
+import * as Ajv from 'ajv'
 
 const Schema = () => {
   const ajv = new Ajv({
@@ -24,7 +24,7 @@ const Schema = () => {
     food: ajv.compile(foodSchema)
   }
 
-  return async(name, payload) => {
+  return async(name: string, payload: any) => {
     const schema = _schemas[name] ? _schemas[name] : null
     if (!schema) {
       throw new Error(`No schema with the name ${name} found`)
