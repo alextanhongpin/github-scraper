@@ -13,10 +13,10 @@
     "typeRoots": ["typings", "node_modules/@types"]
   },
   "files": [
-    "./node_modules/@types/mocha/index.d.ts",
-    "./node_modules/@types/node/index.d.ts",
-    "./typings/opossum/index.d.ts",
-    "./typings/json/index.d.ts"
+    "./typings/circuit-retry/index.d.ts",
+    "./typings/json/index.d.ts",
+    "./typings/node-cron/index.d.ts",
+    "./typings/opossum/index.d.ts"
   ],
   "include": [
     "src/**/*.ts"

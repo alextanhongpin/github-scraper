@@ -23,45 +23,15 @@ const config = convict({
     default: process.env.ACCESS_TOKEN,
     env: 'ACCESS_TOKEN'
   },
-  db: {
-    host: {
-      doc: 'mysql database hostname',
-      format: String,
-      default: 'localhost',
-      env: 'DB_HOST'
-    },
-    database: {
-      doc: 'mysql database name',
-      format: String,
-      default: 'testdb',
-      env: 'DB_NAME'
-    },
-    user: {
-      doc: 'mysql database username',
-      format: String,
-      default: 'user',
-      env: 'DB_USER'
-    },
-    password: {
-      doc: 'mysql database password',
-      format: String,
-      default: '123456',
-      env: 'DB_PASS'
-    },
-    port: {
-      doc: 'mysql database port',
-      format: 'port',
-      default: '3306',
-      env: 'DB_PORT'
-    }
+  perPage: {
+    doc: 'The maximum item per page for Github result',
+    format: Number,
+    default: 30
   },
-  service: {
-    food: {
-      doc: 'Feature toggle for food service',
-      format: Boolean,
-      default: true,
-      env: 'FOOD_SERVICE'
-    }
+  country: {
+    doc: 'The country the Github users reside',
+    format: String,
+    default: 'Malaysia'
   }
 })
 

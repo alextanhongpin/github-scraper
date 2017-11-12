@@ -45,6 +45,10 @@
   version "2.2.44"
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-2.2.44.tgz#1d4a798e53f35212fd5ad4d04050620171cd5b5e"
 
+"@types/ms@^0.7.30":
+  version "0.7.30"
+  resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.30.tgz#f6c38b7ecbbf698b0bbd138315a0f0f18954f85f"
+
 "@types/nedb@^1.8.5":
   version "1.8.5"
   resolved "https://registry.yarnpkg.com/@types/nedb/-/nedb-1.8.5.tgz#badacf5f70e8c4ae1d6c3ad09dddc055ed2e044f"
@@ -954,12 +958,6 @@ chokidar@^1.6.1, chokidar@^1.7.0:
     readdirp "^2.0.0"
   optionalDependencies:
     fsevents "^1.0.0"
-
-circuit-retry@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/circuit-retry/-/circuit-retry-1.2.1.tgz#9f2067b98e247895ceca8b584298b42cf884e779"
-  dependencies:
-    ms "^2.0.0"
 
 cli-boxes@^1.0.0:
   version "1.0.0"
