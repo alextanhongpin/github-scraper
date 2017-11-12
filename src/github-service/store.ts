@@ -18,7 +18,16 @@ import {
   SearchRequest, SearchResponse
 } from './interface'
 
-const GithubStore = (githubToken?: string) => {
+interface StoreParams {
+  config: any;
+  db: any;
+}
+
+
+const githubCreatedAt = new Date(2008, 3, 1) // April 2008
+
+function Store ({ config, db }: StoreParams) {
+  const githubToken = config.get('accessToken')
   const headerWithToken = {
     'Authorization': `token ${githubToken}`
   }
@@ -57,14 +66,100 @@ const GithubStore = (githubToken?: string) => {
     return DefaultCircuitBreaker(options)
   }
 
-  async function saveRepos (data: any, path = 'data/repos.json'): Promise<any> {
-    const writeFileAsync = promisify(fs.writeFile)
-    return writeFileAsync(path, JSON.stringify(data), 'utf-8')
+  async function saveRepos (data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.repos.insert(data, (error: Error, newDoc: any) => {
+        error ? reject(error) : resolve(newDoc)
+      })
+    })
   }
 
-  async function saveUsers (data: any, path = 'data/users.json'): Promise<any> {
-    const writeFileAsync = promisify(fs.writeFile)
-    return writeFileAsync(path, JSON.stringify(data), 'utf-8')
+  async function saveUsers (data: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.users.insert(data, (error: Error, newDoc: any) => {
+        error ? reject(error) : resolve(newDoc)
+      })
+    })
+  }
+
+  async function getUsers (): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.users.find({}, (error: Error, docs: any) => {
+        error ? reject(error) : resolve(docs)
+      })
+    })
+  }
+
+  async function checkUserExist ({ id }: { id: number }): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.users.findOne({ id }, (error: Error, user: any) => {
+        error ? reject(error) : resolve(user)
+      })
+    })
+  }
+
+  async function updateUser (params: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.users.update({ id: params.id }, params, {}, (error: Error, numReplaced: number) => {
+        error ? reject(error) : resolve(numReplaced)
+      })
+    })
+  }
+
+  async function lastUpdatedUser (params: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.users.findOne({}).sort({ createdAt: -1 }).limit(1).exec((error: Error, docs: any) => {
+        error ? reject(error) : resolve(new Date(docs && docs.created_at || githubCreatedAt).getTime())
+      })
+    })
+  }
+
+  async function getRepos (): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.repos.find({}, (error: Error, docs: any) => {
+        error ? reject(error) : resolve(docs)
+      })
+    })
+  }
+
+  async function checkRepoExist ({ id }: { id: number }): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.repos.findOne({ id }, (error: Error, repo: any) => {
+        error ? reject(error) : resolve(repo)
+      })
+    })
+  }
+
+  async function updateRepo (params: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.repos.update({ id: params.id }, params, {}, (error: Error, numReplaced: number) => {
+        error ? reject(error) : resolve(numReplaced)
+      })
+    })
+  }
+
+  async function lastUpdatedRepo (params: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.repos.findOne({}).sort({ createdAt: -1 }).limit(1).exec((error: Error, docs: any) => {
+        error ? reject(error) : resolve(new Date(docs && docs.created_at || githubCreatedAt).getTime())
+      })
+    })
+  }
+
+  async function countRepo (params: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.repos.count({}, (error: Error, count: any) => {
+        error ? reject(error) : resolve(count)
+      })
+    })
+  }
+
+  async function countUser (params: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.users.count({}, (error: Error, count: any) => {
+        error ? reject(error) : resolve(count)
+      })
+    })
   }
 
   return {
@@ -72,8 +167,18 @@ const GithubStore = (githubToken?: string) => {
     oneUser,
     search,
     saveRepos,
-    saveUsers
+    saveUsers,
+    getUsers,
+    getRepos,
+    checkUserExist,
+    checkRepoExist,
+    updateUser,
+    updateRepo,
+    lastUpdatedRepo,
+    lastUpdatedUser,
+    countUser,
+    countRepo
   }
 }
 
-export default (githubToken?: string) => GithubStore(githubToken)
+export default (params?: any) => Store(params)

@@ -17,6 +17,12 @@ const config = convict({
     default: process.env.PORT,
     env: 'PORT'
   },
+  accessToken: {
+    doc: 'The Github Access Token',
+    format: String,
+    default: process.env.ACCESS_TOKEN,
+    env: 'ACCESS_TOKEN'
+  },
   db: {
     host: {
       doc: 'mysql database hostname',

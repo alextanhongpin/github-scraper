@@ -1,6 +1,13 @@
 # NodeJS with Babel
 Read more about Babel from [here](https://babeljs.io/).
 
+## Issues
+
+
+```bash
+{"message":"Only the first 1000 search results are available","documentation_url":"https://developer.github.com/v3/search/"}
+```
+
 ## Installation
 
 First, you have to install [Yarn](https://yarnpkg.com/lang/en/docs/install/). Then:

@@ -13,6 +13,7 @@ import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import config from './config'
 // import DB from './database'
+import db from './database/nedb'
 
 import Schema from './schema'
 import FoodService from './github-service'
@@ -27,7 +28,7 @@ async function main () {
 
   const services = [
     FoodService
-  ].map(service => service({ schema }))
+  ].map(service => service({ schema, config, db }))
 
   // Initialize service by looping through them
   services.forEach((service) => {
