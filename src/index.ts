@@ -105,11 +105,12 @@ async function main () {
     return true
   }
 
-  cron().then((ok) => {
-    console.log('cron: success', ok)
-  }).catch((error) => {
+  try {
+    const ok = await cron()
+    console.log('cron: success:', ok)
+  } catch (error) {
     console.log('cron error:', error.message)
-  })
+  }
 
   app.get('/', async (req, res) => {
     res.status(200).json({
