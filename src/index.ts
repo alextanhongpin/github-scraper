@@ -107,6 +107,7 @@ async function main () {
     return true
   }
 
+
   cron.schedule('*/30 * * * *', async function() {
     console.log('#cron running a task every thirty minute')
     try {
