@@ -35,6 +35,7 @@ import {
 const Store = ({ config, db }: { config: any, db: any }): UserStore => {
   const githubCreatedAt = new Date(2008, 3, 1) // April 2008
   async function fetchOne ({ login }: FetchOneRequest): Promise<FetchOneResponse> {
+    console.log(`#userService.fetchOne login = ${login}`)
     const options = {
       url: `https://api.github.com/users/${login}`,
       headers: buildHeader(config.get('accessToken')),
@@ -45,23 +46,24 @@ const Store = ({ config, db }: { config: any, db: any }): UserStore => {
 
   async function create (req: CreateRequest): Promise<CreateResponse> {
     return new Promise<CreateRequest>((resolve, reject) => {
-      db.users.insert(req, (error: Error, newDoc: any) => {
-        error ? reject(error) : resolve(newDoc)
+      db.users.insert(req.users, (error: Error, newDoc: any) => {
+        console.log(`#userStore.create newDoc = ${newDoc.length}`)
+        error ? reject(error) : resolve({ users: newDoc })
       })
     })
   }
 
-  async function all (req: AllRequest): Promise<AllResponse> {
+  async function all ({ limit, offset }: AllRequest): Promise<AllResponse> {
     return new Promise<AllResponse>((resolve, reject) => {
-      db.users.find({}, (error: Error, docs: any) => {
+      db.users.find({}).skip(offset).limit(limit).exec((error: Error, docs: any) => {
         error ? reject(error) : resolve(docs)
       })
     })
   }
 
-  async function checkExist ({ id }: CheckExistRequest): Promise<CheckExistResponse> {
+  async function checkExist ({ id, login }: CheckExistRequest): Promise<CheckExistResponse> {
     return new Promise<CheckExistResponse>((resolve, reject) => {
-      db.users.findOne({ id }, (error: Error, user: any) => {
+      db.users.findOne({ id, login }, (error: Error, user: any) => {
         error ? reject(error) : resolve(user)
       })
     })

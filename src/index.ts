@@ -13,6 +13,7 @@ import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import * as Bluebird from 'bluebird'
 import Retry from './helper/circuit-retry'
+import * as cron from 'node-cron'
 
 import config from './config'
 import db from './database/nedb'
@@ -33,13 +34,14 @@ async function main () {
   const repoService = RepoService({ config, db })
 
   // Transport
-  async function cron (): Promise<boolean> {
+  async function cronService (): Promise<boolean> {
     const DAYS = 1000 * 60 * 60 * 24
     const startTimestamp: number = Math.min(...[
       (await userService.lastCreated({})).timestamp, 
-      (await repoService.lastCreated({})).timestamp
+      // (await repoService.lastCreated({})).timestamp
     ])
     const endTimestamp: number = startTimestamp + (180 * DAYS)
+    console.log(`#range start = ${startTimestamp} end = ${endTimestamp}`)
     const country = config.get('country')
     const perPage = config.get('perPage')
   
@@ -96,24 +98,70 @@ async function main () {
     const { repos } = await repoService.fetchAllForUsers(ctx, { users: userRepoInfos })
 
     // Save repos
-    const { repos: savedRepos } = await repoService.createMany({ repos })
-    console.log(`event=save_repos saved=${savedRepos.length} fetched=${repos.length}`)
+    const savedRepos = await repoService.createMany({ repos })
+    console.log(`event=save_repos saved=${savedRepos.repos.length} fetched=${repos.length}`)
 
     // Save users
-    const { users: savedUsers } = await userService.createMany({ users: userInfos })
-    console.log(`event=save_users saved=${savedUsers.length} fetched=${userInfos.length}`)
+    const savedUsers = await userService.createMany({ users: userInfos })
+    console.log(`event=save_users saved=${savedUsers.users.length} fetched=${userInfos.length}`)
     return true
   }
 
-  cron().then((ok) => {
-    console.log('cron: success', ok)
-  }).catch((error) => {
-    console.log('cron error:', error.message)
+  cron.schedule('*/30 * * * *', async function() {
+    console.log('#cron running a task every thirty minute')
+    try {
+      const ok = await cronService()
+      console.log('cron: success', ok)
+    } catch (error) {
+      console.log('cron error:', error.message)
+    }
   })
 
   app.get('/', async (req, res) => {
     res.status(200).json({
       routes: app.routes
+    })
+  })
+
+  app.get('/users', async (req, res) => {
+    const { limit = 10, offset = 0 } = req.query
+    const users = await userService.all({
+      limit, offset
+    })
+    res.status(200).json({
+      data: users
+    })
+  })
+
+  app.get('/repos', async (req, res) => {
+    const { limit = 10, offset = 0 } = req.query
+    const repos = await repoService.all({
+      limit, offset
+    })
+    res.status(200).json({
+      data: repos
+    })
+  })
+
+  app.get('/repos/:login', async (req, res) => {
+    const { login } = req.params
+    const repos = await repoService.allByUser({ login })
+    res.status(200).json({
+      data: repos
+        .filter((repo: any) => !repo.fork)
+        .map((repo: any) => {
+          const { owner, name, description, size, stargazers_count, watchers_count, language, forks_count } = repo
+          return {
+            login: owner.login,
+            name,
+            description,
+            size,
+            stargazers_count,
+            watchers_count,
+            language,
+            forks_count
+          }
+        })
     })
   })
 

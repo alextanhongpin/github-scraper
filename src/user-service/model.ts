@@ -47,28 +47,33 @@ const Model = ({ store }: { store: UserStore }): UserModel => {
     const validatedUsers = await Bluebird.all(users).map(async (user: User) => {
       // Check if the user exist
       const existingUser = await store.checkExist({ 
-        id: user.id
+        id: user.id,
+        login: user.login
       })
+      console.log(`#checkUserExist with id = ${user.id} and login = ${user.login} output = ${existingUser}`)
       // Update existing user
       if (existingUser) {
+        console.log(`#userExist with id = ${user.id} and login = ${user.login}`)
         const isUpdatedUser = existingUser.updated_at < user.updated_at
         if (isUpdatedUser) {
           await store.update(user)
         }
         return null
       }
+
+      console.log(`#userService.createMany login = ${user.login} id = ${user.id}`)
       // And return the new users
       return user
     }, {
       concurrency: 50
     })
-    const newUsers = validatedUsers.filter((nonNull: any) => nonNull) // Take only new users
+    const newUsers = validatedUsers.filter((nonNull: any) => nonNull !== null) // Take only new users
+    console.log(`#newUsers = ${newUsers.length}`)
     if (!newUsers.length) {
       return { users: [] }
     }
     // Save new users
-    const { users: newDocs } = await store.create({ users: newUsers })
-    return { users: newDocs }
+    return store.create({ users: newUsers })
   }
 
   return {

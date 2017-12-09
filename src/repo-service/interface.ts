@@ -115,10 +115,13 @@ export interface FetchAllForUserResponse extends Repos { }
 export interface FetchAllForUsersRequest { users: { login: string; totalCount: number; }[] }
 export interface FetchAllForUsersResponse { repos: Repo[] }
 
-export interface AllRequest {}
+export interface AllRequest { limit: number; offset: number;}
 export interface AllResponse extends Repos {}
 
-export interface CheckExistRequest { id: string; }
+export interface AllByUserRequest { login: string; }
+export interface AllByUserResponse extends Repos {}
+
+export interface CheckExistRequest { id: string; login: string; }
 export interface CheckExistResponse extends Repo {}
 
 export interface CountRequest {}
@@ -137,6 +140,7 @@ export interface UpdateResponse { numReplaced: number; }
 
 export interface RepoStore {
   all(req: AllRequest): Promise<AllResponse>;
+  allByUser(req: AllByUserRequest): Promise<AllByUserResponse>;
   checkExist(req: CheckExistRequest): Promise<CheckExistResponse>;
   count(req: CountRequest): Promise<CountResponse>;
   create(req: CreateRequest): Promise<CreateResponse>;

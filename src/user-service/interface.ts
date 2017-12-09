@@ -52,10 +52,13 @@ export interface FetchOneResponse extends User {}
 export interface FetchManyRequest { logins: string[]; }
 export interface FetchManyResponse { users: User[] }
 
-export interface AllRequest {}
+export interface AllRequest {
+  limit: number;
+  offset: number;
+}
 export interface AllResponse extends Users {}
 
-export interface CheckExistRequest { id: number; }
+export interface CheckExistRequest { id: number; login: string; }
 export interface CheckExistResponse extends User {}
 
 export interface CountRequest {}

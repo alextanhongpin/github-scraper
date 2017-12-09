@@ -28,6 +28,7 @@ const Store = ({ config }: any): SearchStore => {
   }: SearchRequest): Promise<SearchResponse> {
     const start: string = moment(startTimestamp).format('YYYY-MM-DD')
     const end: string = moment(endTimestamp).format('YYYY-MM-DD')
+    console.log(`#searchService start = ${start} end = ${end} country = ${country}`)
     const options = {
       url: `https://api.github.com/search/users?q=location:${country} created:${start}..${end}&page=${page}`,
       headers: buildHeader(config.get('accessToken')),

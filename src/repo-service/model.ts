@@ -27,6 +27,8 @@ import {
   FetchAllForUsersResponse,
   AllRequest,
   AllResponse,
+  AllByUserRequest,
+  AllByUserResponse,
   CreateRequest, 
   CreateResponse,
   CheckExistRequest,
@@ -66,32 +68,37 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     const validatedRepos = await Bluebird.all(repos).map(async (repo: any) => {
       // Check if the repo exist
       const existingRepo = await store.checkExist({ 
-        id: repo.id
+        id: repo.id,
+        login: repo.owner && repo.owner.login
       })
+      
       // Update existing repo
       if (existingRepo) {
+        console.log(`#repoExist with id = ${repo.id} login = ${existingRepo.owner && existingRepo.owner.login} `)
         const isUpdatedRepo = existingRepo.updated_at < repo.updated_at
         if (isUpdatedRepo) {
           await store.update(repo)
         }
         return null
       }
+      console.log(`#repoService.createMany name = ${repo.name} id = ${repo.id} owner = ${repo.owner && repo.owner.login}`)
       // And return the new repos
       return repo
     }, {
       concurrency: 50
     })
-    const newRepos = validatedRepos.filter((nonNull: any) => nonNull) // Take only new users
+    const newRepos = validatedRepos.filter((nonNull: any) => nonNull !== null) // Take only new users
+    console.log(`#newRepos = ${newRepos.length}`)
     if (!newRepos.length) {
       return { repos: [] }
     }
     // Save new repos
-    const { repos: newDocs } = await store.create({ repos: newRepos })
-    return { repos: newDocs } 
+    return store.create({ repos: newRepos })
   }
 
   return {
     all: (req: AllRequest): Promise<AllResponse> => store.all(req),
+    allByUser: (req: AllByUserRequest): Promise<AllByUserResponse> => store.allByUser(req),
     checkExist: (req: CheckExistRequest): Promise<CheckExistResponse> => store.checkExist(req),
     count: (req: CountRequest): Promise<CountResponse> => store.count(req),
     create: (req: CreateRequest): Promise<CreateResponse> => store.create(req),

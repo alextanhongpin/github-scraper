@@ -18,6 +18,8 @@ import {
   FetchAllResponse,
   AllRequest,
   AllResponse,
+  AllByUserRequest,
+  AllByUserResponse,
   CreateRequest, 
   CreateResponse,
   CheckExistRequest,
@@ -43,9 +45,17 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
     return request(options)
   }
 
-  async function all (req: AllRequest): Promise<AllResponse> {
+  async function all ({ offset, limit }: AllRequest): Promise<AllResponse> {
     return new Promise<AllResponse>((resolve, reject) => {
-      db.repos.find({}, (error: Error, docs: any) => {
+      db.repos.find({}).skip(offset).limit(limit).exec((error: Error, docs: any) => {
+        error ? reject(error) : resolve(docs)
+      })
+    })
+  }
+
+  async function allByUser ({ login }: AllByUserRequest): Promise<AllByUserResponse> {
+    return new Promise<AllResponse>((resolve, reject) => {
+      db.repos.find({ 'owner.login': login }, (error: Error, docs: any) => {
         error ? reject(error) : resolve(docs)
       })
     })
@@ -53,15 +63,19 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
 
   async function create (req: CreateRequest): Promise<CreateResponse> {
     return new Promise<CreateResponse>((resolve, reject) => {
-      db.repos.insert(req, (error: Error, newDoc: any) => {
-        error ? reject(error) : resolve(newDoc)
+      db.repos.insert(req.repos, (error: Error, newDoc: any) => {
+        console.log(`#repoStore.create newDoc = ${newDoc.length}`)
+        error ? reject(error) : resolve({ repos: newDoc })
       })
     })
   }
 
-  async function checkExist (req: CheckExistRequest): Promise<CheckExistResponse> {
+  async function checkExist ({ id, login }: CheckExistRequest): Promise<CheckExistResponse> {
     return new Promise<CheckExistResponse>((resolve, reject) => {
-      db.repos.findOne(req, (error: Error, repo: any) => {
+      db.repos.findOne({ 
+        id,
+        'owner.login': login
+      }, (error: Error, repo: any) => {
         error ? reject(error) : resolve(repo)
       })
     })
@@ -96,6 +110,7 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
 
   return {
     all,
+    allByUser,
     checkExist,
     count,
     create,
