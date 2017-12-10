@@ -108,7 +108,7 @@ async function main () {
   }
 
 
-  cron.schedule('*/30 * * * *', async function() {
+  // cron.schedule('*/30 * * * *', async function() {
     console.log('#cron running a task every thirty minute')
     try {
       const ok = await cronService()
@@ -116,7 +116,7 @@ async function main () {
     } catch (error) {
       console.log('cron error:', error.message)
     }
-  })
+  // })
 
   app.get('/', async (req, res) => {
     res.status(200).json({
