@@ -1,11 +1,22 @@
-const ProgressBar = require('progress')
-console.log(ProgressBar)
+const user = require('./data/alextanhongpin.json')
+console.log(user.data.length)
 
-const bar = new ProgressBar('  [:bar]', 10)
-
-var id = setInterval(function () {
-  bar.tick()
-  if (bar.complete) {
-    clearInterval(id)
+const cache = user.data.reduce((acc, repo) => {
+  if (!acc[repo.language]) {
+    acc[repo.language] = 0
   }
-}, 100)
+  acc[repo.language] += 1
+  return acc
+}, {})
+
+const totalCount = Object.values(cache).reduce((l, r) => l + r, 0)
+console.log(totalCount)
+
+const percentage = Object.keys(cache).map((language) => {
+  return {
+    language,
+    percentage: Math.round(cache[language] / totalCount * 100)
+  }
+})
+
+console.log(percentage)

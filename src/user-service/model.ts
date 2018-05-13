@@ -30,7 +30,9 @@ import {
   LastCreatedRequest,
   LastCreatedResponse,
   CountRequest,
-  CountResponse
+  CountResponse,
+  GetOneRequest,
+  GetOneResponse,
 } from './interface'
 
 const Model = ({ store }: { store: UserStore }): UserModel => {
@@ -83,6 +85,7 @@ const Model = ({ store }: { store: UserStore }): UserModel => {
     create: (req: CreateRequest): Promise<CreateResponse> => store.create(req),
     lastCreated: (req: LastCreatedRequest): Promise<LastCreatedResponse> => store.lastCreated(req),
     fetchOne: (req: FetchOneRequest): Promise<FetchOneResponse> => store.fetchOne(req),
+    getOne: (req: GetOneRequest): Promise<GetOneResponse> => store.getOne(req),
     update: (req: UpdateRequest): Promise<UpdateResponse> => store.update(req),
     fetchMany,
     createMany

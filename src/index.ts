@@ -107,15 +107,14 @@ async function main () {
     return true
   }
 
-
   // cron.schedule('*/30 * * * *', async function() {
-    console.log('#cron running a task every thirty minute')
-    try {
-      const ok = await cronService()
-      console.log('cron: success', ok)
-    } catch (error) {
-      console.log('cron error:', error.message)
-    }
+  //   console.log('#cron running a task every thirty minute')
+  //   try {
+  //     const ok = await cronService()
+  //     console.log('cron: success', ok)
+  //   } catch (error) {
+  //     console.log('cron error:', error.message)
+  //   }
   // })
 
   app.get('/', async (req, res) => {
@@ -126,11 +125,22 @@ async function main () {
 
   app.get('/users', async (req, res) => {
     const { limit = 10, offset = 0 } = req.query
-    const users = await userService.all({
-      limit, offset
-    })
+    const [users, countResponse] = await Promise.all([
+      userService.all({ limit, offset }),
+      userService.count({})
+    ])
+        
     res.status(200).json({
-      data: users
+      data: users,
+      count: countResponse.totalCount
+    })
+  })
+
+  app.get('/users/:login', async (req, res) => {
+    const user = await userService.getOne({ login: req.params.login })
+        
+    res.status(200).json({
+      data: user
     })
   })
 
@@ -147,22 +157,33 @@ async function main () {
   app.get('/repos/:login', async (req, res) => {
     const { login } = req.params
     const repos = await repoService.allByUser({ login })
+    const filteredRepos = repos
+    .filter((repo: any) => !repo.fork)
+    .map((repo: any) => {
+      const { owner, name, description, size, stargazers_count, watchers_count, language, forks_count } = repo
+      return {
+        login: owner.login,
+        name,
+        description,
+        size,
+        stargazers_count,
+        watchers_count,
+        language,
+        forks_count
+      }
+    })
+    res.status(200).json({
+      data: filteredRepos,
+      count: filteredRepos.length
+    })
+  })
+
+  app.get('/github/repos/:login', async (req, res) => {
+    const { login } = req.params
+    const page = Number(req.query.page)
+    const repos = await repoService.getReposAndUpdate({ login, page })
     res.status(200).json({
       data: repos
-        .filter((repo: any) => !repo.fork)
-        .map((repo: any) => {
-          const { owner, name, description, size, stargazers_count, watchers_count, language, forks_count } = repo
-          return {
-            login: owner.login,
-            name,
-            description,
-            size,
-            stargazers_count,
-            watchers_count,
-            language,
-            forks_count
-          }
-        })
     })
   })
 

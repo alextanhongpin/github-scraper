@@ -1,8 +1,8 @@
-# NodeJS with Babel
-Read more about Babel from [here](https://babeljs.io/).
+# github-scraper
+
+Scrapes public repos based on a particular keyword or location.
 
 ## Issues
-
 
 ```bash
 {"message":"Only the first 1000 search results are available","documentation_url":"https://developer.github.com/v3/search/"}
@@ -35,62 +35,22 @@ For development, store all the environment variable in the `.env` file. This wil
 Make sure you create the `.env` file or the service will not run.
 
 The `.env` should contain the following:
+
 ```bash
-DB_USER=user
-DB_PASS=123456
-DB_NAME=testdb
-DB_HOST=localhost
-
-FOOD_SERVICE=true
-```
-
-# Stop MySQL from your local
-
-Any running MySQL will prevent the app from connecting to the docker container.
-
-If you don't stop the MySQL, the following error might appear:
-```bash
-$ error 1044 (42000): access denied for user
-```
-
-# Starting the docker image with MySQL DB
-```bash
-$ docker-compose up -d
+# Create a personal access token from Github.
+# It should contain the minimum scope repo::public_repo and user::read:user
+ACCESS_TOKEN=<YOUR_GITHUB_ACCESS_TOKEN>
 ```
 
 ## Start
 
 ```bash
+# If you do not have `foreman` installed globally
+$ yarn global add foreman
+
+# or
+$ npm i -g foreman
+
+# Start
 $ nf start
 ```
-
-## Test
-
-You can use any reporters that are supported by istanbul: `clover`, `cobertura`, `html`, `json-summary`, `json`, `lcov`, `lcovonly`, `none`, `teamcity`, `text-lcov`, `text-summary`, `text`.
-
-```
-$ yarn test
-```
-
-## Report
-
-```
-$ yarn cover
-```
-
-## Build
-
-```
-$ yarn build
-```
-
-## Create a Table
-
-```sql
-CREATE TABLE food (
-    id int NOT NULL,
-    name varchar(255) NOT NULL,
-    PRIMARY KEY (ID)
-);
-```
-

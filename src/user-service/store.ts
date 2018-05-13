@@ -20,6 +20,8 @@ import {
   UserStore,
   AllRequest,
   AllResponse,
+  GetOneRequest,
+  GetOneResponse,
   CreateRequest, 
   CreateResponse,
   CheckExistRequest,
@@ -49,6 +51,14 @@ const Store = ({ config, db }: { config: any, db: any }): UserStore => {
       db.users.insert(req.users, (error: Error, newDoc: any) => {
         console.log(`#userStore.create newDoc = ${newDoc.length}`)
         error ? reject(error) : resolve({ users: newDoc })
+      })
+    })
+  }
+
+  async function getOne (req: GetOneRequest): Promise<GetOneResponse> {
+    return new Promise<GetOneResponse>((resolve, reject) => {
+      db.users.find({ login: req.login }).exec((error: Error, docs: any) => {
+        error ? reject(error) : resolve(docs)
       })
     })
   }
@@ -94,6 +104,7 @@ const Store = ({ config, db }: { config: any, db: any }): UserStore => {
 
   return {
     fetchOne,
+    getOne,
     create,
     count,
     lastCreated,

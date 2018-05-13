@@ -29,7 +29,15 @@ import {
   LastCreatedRequest,
   LastCreatedResponse,
   CountRequest,
-  CountResponse
+  CountResponse,
+  GetReposRequest,
+  GetReposResponse,
+  GetRepoCountByLoginRequest,
+  GetRepoCountByLoginResponse,
+  GetLastRepoByLoginRequest,
+  GetLastRepoByLoginResponse,
+  GetReposSinceRequest,
+  GetReposSinceResponse
 } from './interface'
 
 const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
@@ -45,6 +53,15 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
     return request(options)
   }
 
+  async function getRepos ({ login, page=1 }: GetReposRequest): Promise<GetReposResponse> {
+    const options = {
+      url: `https://api.github.com/search/repositories?q=user:${login}&page=${page}&sort=updated&order=desc`,
+      headers: buildHeader(config.get('accessToken')),
+      json: true
+    }
+    return request(options)
+  }
+
   async function all ({ offset, limit }: AllRequest): Promise<AllResponse> {
     return new Promise<AllResponse>((resolve, reject) => {
       db.repos.find({}).skip(offset).limit(limit).exec((error: Error, docs: any) => {
@@ -54,7 +71,7 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
   }
 
   async function allByUser ({ login }: AllByUserRequest): Promise<AllByUserResponse> {
-    return new Promise<AllResponse>((resolve, reject) => {
+    return new Promise<AllByUserResponse>((resolve, reject) => {
       db.repos.find({ 'owner.login': login }, (error: Error, docs: any) => {
         error ? reject(error) : resolve(docs)
       })
@@ -100,6 +117,7 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
     })
   }
 
+  // Get the total count of all the repos in the storage
   async function count (req: CountRequest): Promise<CountResponse> {
     return new Promise<CountResponse>((resolve, reject) => {
       db.repos.count({}, (error: Error, count: any) => {
@@ -108,15 +126,47 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
     })
   }
 
+  // Get the total count of the repos by login
+  async function getRepoCountByLogin (req: GetRepoCountByLoginRequest): Promise<GetRepoCountByLoginResponse> {
+    return new Promise<GetRepoCountByLoginResponse>((resolve, reject) => {
+      db.repos.count({'owner.login': req.login }, (error: Error, total_count: number) => {
+        error ? reject(error) : resolve({ total_count })
+      })    
+    })
+  }
+
+  // Get the created at date of the last repo by login
+  async function getLastRepoByLogin(req: GetLastRepoByLoginRequest): Promise<GetLastRepoByLoginResponse> {
+    return new Promise<GetLastRepoByLoginResponse>((resolve, reject) => {
+      db.repos.findOne({ 'owner.login': req.login }).sort({ created_at: -1 }).exec((error: Error, docs: any) => {
+        error ? reject(error) : resolve(docs)
+      }) 
+    })
+  }
+
+  // Get repos that are created by a particular user after the given date
+  async function getReposSince ({ login, page=1, start, end }: GetReposSinceRequest): Promise<GetReposSinceResponse> {
+    const options = {
+      url: `https://api.github.com/search/repositories?q=user:${login} created:${start}..${end}&page=${page}&sort=updated&order=desc`,
+      headers: buildHeader(config.get('accessToken')),
+      json: true
+    }
+    return request(options)
+  }
+
   return {
     all,
     allByUser,
+    getRepos,
     checkExist,
     count,
     create,
     lastCreated,
     fetchAll,
-    update
+    update,
+    getRepoCountByLogin,
+    getLastRepoByLogin,
+    getReposSince
   }
 }
 

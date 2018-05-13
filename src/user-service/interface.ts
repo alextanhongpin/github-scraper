@@ -58,6 +58,9 @@ export interface AllRequest {
 }
 export interface AllResponse extends Users {}
 
+export interface GetOneRequest { login: string; }
+export interface GetOneResponse extends User {}
+
 export interface CheckExistRequest { id: number; login: string; }
 export interface CheckExistResponse extends User {}
 
@@ -76,10 +79,10 @@ export interface LastCreatedResponse { timestamp: number; }
 export interface UpdateRequest extends User {}
 export interface UpdateResponse { numReplaced: number; }
 
-
 export interface UserStore {
   all(req: AllRequest): Promise<AllResponse>;
   checkExist(req: CheckExistRequest): Promise<CheckExistResponse>;
+  getOne(req: GetOneRequest): Promise<GetOneResponse>;
   count(req: CountRequest): Promise<CountResponse>;
   create(req: CreateRequest): Promise<CreateResponse>;
   lastCreated(req: LastCreatedRequest): Promise<LastCreatedResponse>;
@@ -88,6 +91,7 @@ export interface UserStore {
 }
 
 export interface UserModel extends UserStore {
+  getOne(req: GetOneRequest): Promise<GetOneResponse>;
   fetchMany(ctx: any, req: FetchManyRequest): Promise<FetchManyResponse>;
   createMany(req: CreateManyRequest): Promise<CreateManyResponse>;
 }

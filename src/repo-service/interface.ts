@@ -105,6 +105,17 @@ export interface Repos {
   [index: number]: Repo;
 }
 
+export interface GetReposRequest {
+  login: string;
+  page: number;
+}
+
+export interface GetReposResponse {
+  total_count: number;
+  incomplete_results: boolean;
+  items: Repos;
+}
+
 // Any external call is prefixed with Fetch
 export interface FetchAllRequest { login: string; page: number; }
 export interface FetchAllResponse extends Repos {}
@@ -135,24 +146,61 @@ export interface CreateManyResponse { repos: Repo[]; }
 
 export interface LastCreatedRequest {}
 export interface LastCreatedResponse { timestamp: number; }
+
 export interface UpdateRequest extends Repo {}
 export interface UpdateResponse { numReplaced: number; }
 
+export interface GetRepoCountByLoginRequest { login: string; }
+export interface GetRepoCountByLoginResponse {
+  total_count: number;
+}
+
+export interface GetLastRepoByLoginRequest { login: string; }
+export interface GetLastRepoByLoginResponse { created_at: string; }
+
+export interface GetReposSinceRequest {
+  login: string;
+  page: number;
+  start: string;
+  end: string;
+}
+export interface GetReposSinceResponse {
+  total_count: number;
+  incomplete_results: boolean;
+  items: Repos;
+}
+
+export interface GetReposAndUpdateRequest {
+  login: string;
+  page: number;
+}
+
+export interface GetReposAndUpdateResponse {
+  items: Repos;
+}
+
+// The store interface
 export interface RepoStore {
   all(req: AllRequest): Promise<AllResponse>;
   allByUser(req: AllByUserRequest): Promise<AllByUserResponse>;
+  getRepos(req: GetReposRequest): Promise<GetReposResponse>;
   checkExist(req: CheckExistRequest): Promise<CheckExistResponse>;
   count(req: CountRequest): Promise<CountResponse>;
   create(req: CreateRequest): Promise<CreateResponse>;
   lastCreated(req: LastCreatedRequest): Promise<LastCreatedResponse>;
   fetchAll(req: FetchAllRequest): Promise<FetchAllResponse>;
   update(req: UpdateRequest): Promise<UpdateResponse>;
+  getRepoCountByLogin(req: GetRepoCountByLoginRequest): Promise<GetRepoCountByLoginResponse>;
+  getLastRepoByLogin(req: GetLastRepoByLoginRequest): Promise<GetLastRepoByLoginResponse>;
+  getReposSince(req: GetReposSinceRequest): Promise<GetReposSinceResponse>;
 }
 
 export interface RepoModel extends RepoStore {
   fetchAllForUser(req: FetchAllForUserRequest): Promise<FetchAllForUserResponse>;
   fetchAllForUsers(ctx: any, req: FetchAllForUsersRequest): Promise<FetchAllForUsersResponse>;
   createMany(req: CreateManyRequest): Promise<CreateManyResponse>;
+  getRepos(req: GetReposRequest): Promise<GetReposResponse>;
+  getReposAndUpdate(req: GetReposAndUpdateRequest): Promise<GetReposAndUpdateResponse>;
 }
 
 export interface RepoService extends RepoModel {}
