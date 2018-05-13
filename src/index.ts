@@ -36,11 +36,10 @@ async function main () {
   // Transport
   async function cronService (): Promise<boolean> {
     const DAYS = 1000 * 60 * 60 * 24
-    const startTimestamp: number = Math.min(...[
-      (await userService.lastCreated({})).timestamp, 
-      // (await repoService.lastCreated({})).timestamp
-    ])
-    const endTimestamp: number = startTimestamp + (180 * DAYS)
+    const startTimestamp: number = (await userService.lastCreated({})).timestamp
+    const currentTimestamp: number = new Date().getTime()
+    const targetedTimestamp: number = startTimestamp + (180 * DAYS)
+    const endTimestamp: number = targetedTimestamp > currentTimestamp ? currentTimestamp : targetedTimestamp
     console.log(`#range start = ${startTimestamp} end = ${endTimestamp}`)
     const country = config.get('country')
     const perPage = config.get('perPage')
@@ -107,15 +106,15 @@ async function main () {
     return true
   }
 
-  // cron.schedule('*/30 * * * *', async function() {
-  //   console.log('#cron running a task every thirty minute')
-  //   try {
-  //     const ok = await cronService()
-  //     console.log('cron: success', ok)
-  //   } catch (error) {
-  //     console.log('cron error:', error.message)
-  //   }
-  // })
+  cron.schedule('0 12 * * *', async function() {
+    console.log('#cron running a task every day at 12:00 a.m.')
+    try {
+      const ok = await cronService()
+      console.log('cron: success', ok)
+    } catch (error) {
+      console.log('cron error:', error.message)
+    }
+  }, false)
 
   app.get('/', async (req, res) => {
     res.status(200).json({
@@ -138,7 +137,6 @@ async function main () {
 
   app.get('/users/:login', async (req, res) => {
     const user = await userService.getOne({ login: req.params.login })
-        
     res.status(200).json({
       data: user
     })
@@ -182,9 +180,15 @@ async function main () {
   app.get('/github/repos/:login', async (req, res) => {
     const { login } = req.params
     const page = Number(req.query.page)
+    // Create the user entry if user does not exist. Updates existing ones.
+    const user = await userService.fetchOne({ login })
+    const newUser = await userService.createMany({
+      users: [user]
+    })
     const repos = await repoService.getReposAndUpdate({ login, page })
     res.status(200).json({
-      data: repos
+      user: newUser,
+      repos: repos
     })
   })
 

@@ -1,14 +1,23 @@
 version: '3'
 services:
-  database:
-    image: mysql:8.0.3
-    restart: always
-    environment:
-    - MYSQL_ROOT_PASSWORD=admin-pass
-    - MYSQL_DATABASE=testdb
-    - MYSQL_USER=user
-    - MYSQL_PASSWORD=123456
-    volumes:
-    - ./data/mysql:/var/lib/mysql
+  # database:
+  #   image: mysql:8.0.3
+  #   restart: always
+  #   environment:
+  #   - MYSQL_ROOT_PASSWORD=admin-pass
+  #   - MYSQL_DATABASE=testdb
+  #   - MYSQL_USER=user
+  #   - MYSQL_PASSWORD=123456
+  #   volumes:
+  #   - ./data/mysql:/var/lib/mysql
+  #   ports:
+  #   - 3306:3306
+
+  scraper:
+    image: alextanhongpin/github-scraper
     ports:
-    - 3306:3306
+    - 127.0.0.1:5000:5000
+    env_file:
+    - .env
+    volumes:
+    - ./db:/app/db

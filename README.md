@@ -59,3 +59,10 @@ $ nf start
 
 - [ ] ensure only unique repos for a particular user are added (no duplications)
 - [ ] check for language-agnostic storage solution
+
+<!-- // Getting top 10 users
+db.users.find({}).sort({
+  public_repos: -1
+}).limit(10).exec((error: Error, docs: any) => {
+  console.log('top10 users', docs)
+}) -->

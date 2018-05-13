@@ -46,6 +46,7 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
 
   const githubCreatedAt = new Date(2008, 3, 1) // April 2008
 
+  // fetchAll will fetch a list of paginated repos (default 30 items per page, page starting at index 1) by user login
   async function fetchAll ({ login, page=1 }: FetchAllRequest): Promise<FetchAllResponse> {
     const options = {
       url: `https://api.github.com/users/${login}/repos?page=${page}`,
@@ -55,6 +56,8 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
     return request(options)
   }
 
+  // getRepos will return additional information for repos such as total_count, which could be useful
+  // for scraping by page
   async function getRepos ({ login, page=1 }: GetReposRequest): Promise<GetReposResponse> {
     const options = {
       url: `https://api.github.com/search/repositories?q=user:${login}&page=${page}&sort=updated&order=desc`,

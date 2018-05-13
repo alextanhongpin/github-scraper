@@ -1,9 +1,9 @@
 /*
- * public/scripts/model/expense.js
+ * src/index.ts
  *
  * Unauthorized copying of this file, via any medium is strictly prohibited
  * Proprietary and confidential
  *
- * Created by Alex Tan Hong Pin 12/11/2017
- * Copyright (c) 2017 alextanhongpin. All rights reserved.
+ * Created by Alex Tan Hong Pin 13/05/2018
+ * Copyright (c) 2018 alextanhongpin. All rights reserved.
 **/

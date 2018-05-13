@@ -8,7 +8,9 @@
  * Copyright (c) 2017 alextanhongpin. All rights reserved.
 **/
 
-import * as convict from 'convict'
+// The default config of the application that is obtained from environment variables
+
+import* as convict from 'convict'
 
 const config = convict({
   port: {
@@ -32,6 +34,11 @@ const config = convict({
     doc: 'The country the Github users reside',
     format: String,
     default: 'Malaysia'
+  },
+  githubCreatedAt: {
+    doc: 'The date Github is published - used as default date when none is found',
+    format: String,
+    default: new Date(2008, 3, 1).toString()
   }
 })
 

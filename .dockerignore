@@ -1,0 +1,25 @@
+node_modules
+.env
+data
+.nyc_output
+coverage
+db
+.vscode
+.ipynb_checkpoints
+
+# Ignore src folder
+src
+
+# Ignore test folder
+test
+
+tmp
+
+copyright.js
+**ipynb
+docker-compose.yml
+LICENSE
+Makefile
+PROCFILE
+stats.js
+yarn-error.log

@@ -56,6 +56,8 @@ import {
 } from './interface'
 
 const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel => {
+  const githubCreatedAt = config.get('githubCreatedAt')
+
   async function fetchAllForUser ({ totalCount, login }: FetchAllForUserRequest): Promise<FetchAllForUserResponse> {
     const pages = generatePages(totalCount, config.get('perPage'))
     const options = { 
@@ -132,7 +134,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     // Get the last current created
     const lastRepo = await store.getLastRepoByLogin({ login: req.login })
 
-    const start: string = moment(lastRepo && lastRepo.created_at ? lastRepo.created_at : new Date(2008, 3, 1)).format('YYYY-MM-DD')
+    const start: string = moment(lastRepo && lastRepo.created_at ? lastRepo.created_at : githubCreatedAt).format('YYYY-MM-DD')
     const end: string = moment().format('YYYY-MM-DD') // Get repos until today
 
     const repos = await store.getReposSince({
