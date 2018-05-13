@@ -132,7 +132,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     // Get the last current created
     const lastRepo = await store.getLastRepoByLogin({ login: req.login })
 
-    const start: string = moment(lastRepo.created_at).format('YYYY-MM-DD')
+    const start: string = moment(lastRepo && lastRepo.created_at ? lastRepo.created_at : new Date(2008, 3, 1)).format('YYYY-MM-DD')
     const end: string = moment().format('YYYY-MM-DD') // Get repos until today
 
     const repos = await store.getReposSince({

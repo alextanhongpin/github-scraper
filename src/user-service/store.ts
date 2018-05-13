@@ -35,7 +35,7 @@ import {
 } from './interface'
 
 const Store = ({ config, db }: { config: any, db: any }): UserStore => {
-  const githubCreatedAt = new Date(2008, 3, 1) // April 2008
+  const githubCreatedAt = new Date(2008, 3, 1) // April 2008, Github's created year
   async function fetchOne ({ login }: FetchOneRequest): Promise<FetchOneResponse> {
     console.log(`#userService.fetchOne login = ${login}`)
     const options = {

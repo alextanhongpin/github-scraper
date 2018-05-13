@@ -1,5 +1,6 @@
-const user = require('./data/alextanhongpin.json')
-console.log(`user:\n  alextanhongpin`)
+const login = 'klrkdekira'
+const user = require(`./data/${login}.json`)
+console.log(`user:\n  ${login}`)
 console.log('total repos:', user.data.length)
 
 const cache = user.data.reduce((acc, repo) => {
