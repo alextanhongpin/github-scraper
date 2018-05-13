@@ -156,9 +156,10 @@ async function main () {
 
   app.get('/repos/:login', async (req, res) => {
     const { login } = req.params
+    const { exclude_fork: excludeFork } = req.query
     const repos = await repoService.allByUser({ login })
     const filteredRepos = repos
-    .filter((repo: any) => !repo.fork)
+    .filter((repo: any) => excludeFork === 'true' ? !repo.fork : true)
     .map((repo: any) => {
       const { owner, name, description, size, stargazers_count, watchers_count, language, forks_count } = repo
       return {

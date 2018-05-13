@@ -42,9 +42,11 @@ export interface User {
   updated_at: string;
 }
 
-export interface Users {
-  [index: number]: User;
-}
+// export interface Users {
+//   [index: number]: User;
+// }
+
+export interface Users extends Array<User>{};
 
 export interface FetchOneRequest { login: string; }
 export interface FetchOneResponse extends User {}

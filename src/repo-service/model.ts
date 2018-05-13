@@ -17,6 +17,7 @@ import { flatten } from '../helper/list'
 import { 
   RepoModel,
   Repo,
+  Repos,
   RepoStore,
   CreateManyRequest,
   CreateManyResponse,
@@ -49,7 +50,9 @@ import {
   GetLastRepoByLoginRequest,
   GetLastRepoByLoginResponse,
   GetReposSinceRequest,
-  GetReposSinceResponse
+  GetReposSinceResponse,
+  CreateOneRequest,
+  CreateOneResponse
 } from './interface'
 
 const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel => {
@@ -110,16 +113,17 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
   // Fires the Github's Search API to get the current repos by user's login, compare it with the current repo
   // that is local and updates it before returning them
   async function getReposAndUpdate (req: GetReposAndUpdateRequest): Promise<GetReposAndUpdateResponse> {
-    // Fetch the latest repos from Github
+    // Fetch the latest repos from Github - this only takes into consideration the user's repo, forked repos 
+    // will be excluded
     const reposStatus = await store.getRepos(req)
     const latestCount = reposStatus.total_count
 
-    const currentRepos = await store.getRepoCountByLogin({ login: req.login })
+    const currentRepos = await store.getRepoCountByLogin({ login: req.login, is_forked: false })
     const currentCount = currentRepos.total_count
 
     // The local copy already have the same number of repositories as the Github's server 
     console.log(`#compareCount persistedCount = ${currentCount} actualCount = ${latestCount}`)
-    if (currentCount === latestCount) {
+    if (currentCount >= latestCount) {
       return {
         items: reposStatus.items
       }
@@ -152,18 +156,25 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
       })
     }))
 
-    const restRepos = restReposPromises
+    const restRepos: Repo[] = restReposPromises
     .map((response) => response.items)
-    .reduce((acc, repos) => {
+    .reduce((acc: Repo[], repos: Repo[]) => {
       return acc.concat(repos)
     }, [])
 
-    const allRepos = await store.create({
-      repos: repos.items.concat(restRepos)
-    })
+     const createReposPromises: Repo[] = await Promise.all(repos.items.concat(restRepos).map(async(repo: Repo) => {
+        try {
+          const data: CreateOneResponse = await store.createOne({ repo })
+          return data.repo
+        } catch(error) {
+          return null
+        }
+    }))
+
+    const createdRepos: Repos = createReposPromises.filter((nonNull: any) => nonNull !== null)
 
     return {
-      items: allRepos.repos
+      items: createdRepos
     }
   }
 
@@ -174,6 +185,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     checkExist: (req: CheckExistRequest): Promise<CheckExistResponse> => store.checkExist(req),
     count: (req: CountRequest): Promise<CountResponse> => store.count(req),
     create: (req: CreateRequest): Promise<CreateResponse> => store.create(req),
+    createOne: (req: CreateOneRequest): Promise<CreateOneResponse> => store.createOne(req),
     lastCreated: (req: LastCreatedRequest): Promise<LastCreatedResponse> => store.lastCreated(req),
     fetchAll: (req: FetchAllRequest): Promise<FetchAllResponse> => store.fetchAll(req),
     update: (req: UpdateRequest): Promise<UpdateResponse> => store.update(req),

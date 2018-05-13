@@ -101,9 +101,12 @@ export interface RepoOwner {
   site_admin: boolean;
 }
 
-export interface Repos {
-  [index: number]: Repo;
-}
+// NOTE: This will cause issue such as property `concat` is missing from type Repos etc
+// export interface Repos {
+//   [index: number]: Repo;
+// }
+
+export interface Repos extends Array<Repo>{}
 
 export interface GetReposRequest {
   login: string;
@@ -141,6 +144,9 @@ export interface CountResponse { totalCount: number; }
 export interface CreateRequest { repos: Repo[]; }
 export interface CreateResponse { repos: Repo[]; }
 
+export interface CreateOneRequest { repo: Repo; }
+export interface CreateOneResponse { repo: Repo; }
+
 export interface CreateManyRequest { repos: Repo[]; }
 export interface CreateManyResponse { repos: Repo[]; }
 
@@ -150,7 +156,7 @@ export interface LastCreatedResponse { timestamp: number; }
 export interface UpdateRequest extends Repo {}
 export interface UpdateResponse { numReplaced: number; }
 
-export interface GetRepoCountByLoginRequest { login: string; }
+export interface GetRepoCountByLoginRequest { login: string; is_forked: boolean; }
 export interface GetRepoCountByLoginResponse {
   total_count: number;
 }
@@ -187,6 +193,7 @@ export interface RepoStore {
   checkExist(req: CheckExistRequest): Promise<CheckExistResponse>;
   count(req: CountRequest): Promise<CountResponse>;
   create(req: CreateRequest): Promise<CreateResponse>;
+  createOne(req: CreateOneRequest): Promise<CreateOneResponse>;
   lastCreated(req: LastCreatedRequest): Promise<LastCreatedResponse>;
   fetchAll(req: FetchAllRequest): Promise<FetchAllResponse>;
   update(req: UpdateRequest): Promise<UpdateResponse>;

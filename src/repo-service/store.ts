@@ -37,7 +37,9 @@ import {
   GetLastRepoByLoginRequest,
   GetLastRepoByLoginResponse,
   GetReposSinceRequest,
-  GetReposSinceResponse
+  GetReposSinceResponse,
+  CreateOneRequest,
+  CreateOneResponse
 } from './interface'
 
 const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
@@ -87,6 +89,15 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
     })
   }
 
+  async function createOne (req: CreateOneRequest): Promise<CreateOneResponse> {
+    return new Promise<CreateOneResponse>((resolve, reject) => {
+      db.repos.insert(req.repo, (error: Error, newDoc: any) => {
+        console.log(`#repoStore.createOne newDoc =`, newDoc && newDoc.id)
+        error ? reject(error) : resolve({ repo: newDoc })
+      })
+    })
+  }
+
   async function checkExist ({ id, login }: CheckExistRequest): Promise<CheckExistResponse> {
     return new Promise<CheckExistResponse>((resolve, reject) => {
       db.repos.findOne({ 
@@ -129,7 +140,10 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
   // Get the total count of the repos by login
   async function getRepoCountByLogin (req: GetRepoCountByLoginRequest): Promise<GetRepoCountByLoginResponse> {
     return new Promise<GetRepoCountByLoginResponse>((resolve, reject) => {
-      db.repos.count({'owner.login': req.login }, (error: Error, total_count: number) => {
+      db.repos.count({
+        'owner.login': req.login,
+        fork: req.is_forked
+      }, (error: Error, total_count: number) => {
         error ? reject(error) : resolve({ total_count })
       })    
     })
@@ -166,7 +180,8 @@ const Store = ({ config, db }: { config: any, db: any }): RepoStore => {
     update,
     getRepoCountByLogin,
     getLastRepoByLogin,
-    getReposSince
+    getReposSince,
+    createOne
   }
 }
 

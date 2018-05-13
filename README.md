@@ -54,3 +54,8 @@ $ npm i -g foreman
 # Start
 $ nf start
 ```
+
+## TODO
+
+- [ ] ensure only unique repos for a particular user are added (no duplications)
+- [ ] check for language-agnostic storage solution
