@@ -39,9 +39,8 @@ export interface User {
   followers: number;
   following: number;
   created_at: string;
-  updated_at: string;
-  createdAt: string;
-  updatedAt: string;
+  updated_at: string; // Refers to the date the user update the Github profile
+  fetched_at: string; // Refers to the date the user data is fetched from the scraper
 }
 
 // export interface Users {

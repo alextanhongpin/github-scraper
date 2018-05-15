@@ -14,6 +14,7 @@ import * as bodyParser from 'body-parser'
 import * as Bluebird from 'bluebird'
 import Retry from './helper/circuit-retry'
 import * as cron from 'node-cron'
+import * as moment from 'moment'
 
 import config from './config'
 import db from './database/nedb'
@@ -115,14 +116,16 @@ async function main () {
     // } catch (error) {
     //   console.log('cron error:', error.message)
     // }
-  // }, false)
+  // }, true)
 
   // Update Service is responsible for updating user's information
   async function updateService () {
-    db.users.find({}).sort({ updated_at: 1 }).limit(50).exec(async (error: Error, docs: any) => {
+    db.users.find({}).sort({ 
+      fetched_at: 1,
+      updated_at: 1
+    }).limit(30).exec(async (error: Error, docs: any) => {
       const logins = docs.map((doc: any) => doc.login)
-      console.log(logins)
-
+      console.log(`#updateService logins =`, logins)
       const retry = Retry({
         maxRetry: 10,
         timeout: 'exponential',
@@ -147,7 +150,14 @@ async function main () {
     })
   }
 
-  // updateService()
+  // cron.schedule('* * * * *', async function() {
+  //   try {
+  //     console.log('#cron updating every minute')
+  //     await updateService()
+  //   } catch (error) {
+  //     console.log('updateServiceError', error)
+  //   }
+  // }, true)
 
   app.get('/', async (req, res) => {
     res.status(200).json({

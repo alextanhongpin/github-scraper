@@ -9,6 +9,8 @@
 **/
 
 import * as Bluebird from 'bluebird'
+import * as moment from 'moment'
+
 import { 
   User,
   UserModel,
@@ -47,11 +49,15 @@ const Model = ({ store }: { store: UserStore }): UserModel => {
 
   async function createMany ({ users }: CreateManyRequest): Promise<CreateManyResponse> {
     const validatedUsers = await Bluebird.all(users).map(async (user: User) => {
+      // Update fetched time
+      user.fetched_at = moment().utc().format()
+
       // Check if the user exist
       const existingUser = await store.checkExist({ 
         id: user.id,
         login: user.login
       })
+      
       console.log(`#checkUserExist with id = ${user.id} and login = ${user.login} output = ${existingUser}`)
       // Update existing user
       if (existingUser) {
@@ -59,7 +65,6 @@ const Model = ({ store }: { store: UserStore }): UserModel => {
         // const isUpdatedUser = existingUser.updated_at < user.updated_at
         // if (isUpdatedUser) {
           // Override the createdAt date that is assigned by the storage
-        user.createdAt = new Date().toUTCString()
         await store.update(user)
         // }
         return null
