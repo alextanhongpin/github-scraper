@@ -56,10 +56,12 @@ const Model = ({ store }: { store: UserStore }): UserModel => {
       // Update existing user
       if (existingUser) {
         console.log(`#userExist with id = ${user.id} and login = ${user.login}`)
-        const isUpdatedUser = existingUser.updated_at < user.updated_at
-        if (isUpdatedUser) {
-          await store.update(user)
-        }
+        // const isUpdatedUser = existingUser.updated_at < user.updated_at
+        // if (isUpdatedUser) {
+          // Override the createdAt date that is assigned by the storage
+        user.createdAt = new Date().toUTCString()
+        await store.update(user)
+        // }
         return null
       }
 

@@ -40,6 +40,8 @@ export interface User {
   following: number;
   created_at: string;
   updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // export interface Users {

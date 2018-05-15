@@ -114,7 +114,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
 
   // Fires the Github's Search API to get the current repos by user's login, compare it with the current repo
   // that is local and updates it before returning them
-  async function getReposAndUpdate (req: GetReposAndUpdateRequest): Promise<GetReposAndUpdateResponse> {
+  async function getReposAndUpdate (ctx: any, req: GetReposAndUpdateRequest): Promise<GetReposAndUpdateResponse> {
     // Fetch the latest repos from Github - this only takes into consideration the user's repo, forked repos 
     // will be excluded
     const reposStatus = await store.getRepos(req)
@@ -149,14 +149,21 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     // Check the number of remaining pages that needs to be scraped
     const numberOfPages = Math.ceil(repos.total_count / 30)
     // Deduct one, since we already fetch one page
-    const restReposPromises = await Promise.all(Array(numberOfPages - 1).fill(0).map((_, i) => i + 2).map((page: number) => {
-      return store.getReposSince({
+    const pages = Array(numberOfPages - 1).fill(0).map((_, i) => {
+      return i + 2
+    })
+    const options = { 
+      concurrency: 5 
+    }
+    const restReposPromises = await Bluebird.all(pages).map((page: number) => {
+      const params = {
         login: req.login,
         page,
         start,
         end
-      })
-    }))
+      }
+      return ctx.retry.do(store.getReposSince, params)
+    }, options)
 
     const restRepos: Repo[] = restReposPromises
     .map((response) => response.items)

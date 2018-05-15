@@ -89,7 +89,7 @@ const Store = ({ config, db }: { config: any, db: any }): UserStore => {
 
   async function lastCreated (req: LastCreatedRequest): Promise<LastCreatedResponse> {
     return new Promise<LastCreatedResponse>((resolve, reject) => {
-      db.users.findOne({}).sort({ createdAt: -1 }).limit(1).exec((error: Error, docs: any) => {
+      db.users.findOne({}).sort({ created_at: -1 }).exec((error: Error, docs: any) => {
         error ? reject(error) : resolve({ timestamp: new Date(docs && docs.created_at || githubCreatedAt).getTime() })
       })
     })

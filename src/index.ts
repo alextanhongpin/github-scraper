@@ -36,7 +36,8 @@ async function main () {
   // Transport
   async function cronService (): Promise<boolean> {
     const DAYS = 1000 * 60 * 60 * 24
-    const startTimestamp: number = (await userService.lastCreated({})).timestamp
+    // For safety, take those that one day earlier
+    const startTimestamp: number = (await userService.lastCreated({})).timestamp - DAYS
     const currentTimestamp: number = new Date().getTime()
     const targetedTimestamp: number = startTimestamp + (180 * DAYS)
     const endTimestamp: number = targetedTimestamp > currentTimestamp ? currentTimestamp : targetedTimestamp
@@ -106,15 +107,47 @@ async function main () {
     return true
   }
 
-  cron.schedule('0 12 * * *', async function() {
-    console.log('#cron running a task every day at 12:00 a.m.')
-    try {
-      const ok = await cronService()
-      console.log('cron: success', ok)
-    } catch (error) {
-      console.log('cron error:', error.message)
-    }
-  }, false)
+  // cron.schedule('0 12 * * *', async function() {
+    // console.log('#cron running a task every day at 12:00 a.m.')
+    // try {
+    //   const ok = await cronService()
+    //   console.log('cron: success', ok)
+    // } catch (error) {
+    //   console.log('cron error:', error.message)
+    // }
+  // }, false)
+
+  // Update Service is responsible for updating user's information
+  async function updateService () {
+    db.users.find({}).sort({ updated_at: 1 }).limit(50).exec(async (error: Error, docs: any) => {
+      const logins = docs.map((doc: any) => doc.login)
+      console.log(logins)
+
+      const retry = Retry({
+        maxRetry: 10,
+        timeout: 'exponential',
+        timeoutInterval: '1m'
+      })
+      const results = await Bluebird.all(logins).map(async (login: string) => {
+        try {
+          const user = await userService.fetchOne({ login })
+          const newUser = await userService.createMany({
+            users: [user]
+          })
+          console.log(`#updateService: updating ${login}`)
+          const results = await repoService.getReposAndUpdate({ retry }, { login, page: 1 })
+          return results
+        } catch (error) {
+          console.log(`#updateService: login=${login} error=${error}`)
+          return null
+        }
+      }, { concurrency: 5 })
+      const successes = results.filter((nonNull: any) => nonNull !== null)
+      console.log(`updated ${successes.length} out of ${logins.length} users`)
+    })
+  }
+
+  // updateService()
 
   app.get('/', async (req, res) => {
     res.status(200).json({
@@ -185,7 +218,14 @@ async function main () {
     const newUser = await userService.createMany({
       users: [user]
     })
-    const repos = await repoService.getReposAndUpdate({ login, page })
+
+    // Setup Retry
+    const retry = Retry({
+      maxRetry: 10,
+      timeout: 'exponential',
+      timeoutInterval: '1m'
+    })
+    const repos = await repoService.getReposAndUpdate({ retry }, { login, page })
     res.status(200).json({
       user: newUser,
       repos: repos

@@ -207,7 +207,7 @@ export interface RepoModel extends RepoStore {
   fetchAllForUsers(ctx: any, req: FetchAllForUsersRequest): Promise<FetchAllForUsersResponse>;
   createMany(req: CreateManyRequest): Promise<CreateManyResponse>;
   getRepos(req: GetReposRequest): Promise<GetReposResponse>;
-  getReposAndUpdate(req: GetReposAndUpdateRequest): Promise<GetReposAndUpdateResponse>;
+  getReposAndUpdate(ctx: any, req: GetReposAndUpdateRequest): Promise<GetReposAndUpdateResponse>;
 }
 
 export interface RepoService extends RepoModel {}
