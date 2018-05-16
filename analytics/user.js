@@ -247,6 +247,21 @@ function getUsersRepos (db, limit = 5) {
         return profile
       })
 
+      const promises = profiles.map((profile) => {
+        return new Promise((resolve, reject) => {
+          db.profiles.update({
+            login: profile.login
+          }, {
+            $set: profile
+          }, {
+            upsert: true
+          }, (error, numAffected, affectedDocuments, upsert) => {
+            error ? reject(error) : resolve(numAffected, affectedDocuments, upsert)
+          })
+        })
+      })
+      Promise.all(promises).then(console.log).catch(console.log)
+
       const matches = profiles.map((profile1, i) => {
         const features1 = flattenProfile(profile1)
         return {
@@ -275,13 +290,151 @@ function getUsersRepos (db, limit = 5) {
   })
 }
 
-// countUsers(db)
-// countUsersByYears(db)
-// countRepos
-// top10LastUpdatedRepos
-// top10MostStarsRepos(db)
-// top10MostWatchersRepos(db)
-// top20LanguageGlobal(db)
-// top10userWithMostRepos(db)
-// userWithReposCountByLanguage(db)
-// getUsersRepos(db)
+async function main () {
+  // const userCounts = await countUsers(db)
+  // console.log('userCounts:', userCounts)
+
+  // db.analytics.update({
+  //   type: 'user_count'
+  // }, {
+  //   $set: {
+  //     count: userCounts
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+
+  // const userCountsByYears = await countUsersByYears(db)
+  // console.log('userCountsByYears:', userCountsByYears)
+  // db.analytics.update({
+  //   type: 'user_count_by_years'
+  // }, {
+  //   $set: {
+  //     count: userCountsByYears
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+
+  // const repoCount = await countRepos(db)
+  // db.analytics.update({
+  //   type: 'repo_count'
+  // }, {
+  //   $set: {
+  //     count: repoCount
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+
+  // const repos = await top10LastUpdatedRepos(db)
+  // db.analytics.update({
+  //   type: 'leaderboard_last_updated_repos'
+  // }, {
+  //   $set: {
+  //     repos: repos
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+
+  // const repos = await top10MostStarsRepos(db)
+  // db.analytics.update({
+  //   type: 'leaderboard_most_stars_repos'
+  // }, {
+  //   $set: {
+  //     repos: repos
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+
+  // const watchers = await top10MostWatchersRepos(db)
+  // db.analytics.update({
+  //   type: 'leaderboard_most_watchers_repos'
+  // }, {
+  //   $set: {
+  //     repos: watchers
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+  // const languages = await top20LanguageGlobal(db)
+  // console.log(languages)
+  // db.analytics.update({
+  //   type: 'leaderboard_languages'
+  // }, {
+  //   $set: {
+  //     languages: languages
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+
+  // const repos = await top10userWithMostRepos(db)
+  // db.analytics.update({
+  //   type: 'leaderboard_most_repos'
+  // }, {
+  //   $set: {
+  //     repos
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+
+  // const repos = await userWithReposCountByLanguage(db)
+  // db.analytics.update({
+  //   type: 'leaderboard_most_repos_by_language'
+  // }, {
+  //   $set: {
+  //     repos
+  //   }
+  // }, {
+  //   upsert: true
+  // }, (error, numAffected, affectedDocuments, upsert) => {
+  //   console.log(error, numAffected, affectedDocuments, upsert)
+  // })
+  // const matches = await getUsersRepos(db, 10)
+
+  // const promises = matches.map(({ login, matches }) => {
+  //   return new Promise((resolve, reject) => {
+  //     db.profiles.update({
+  //       login
+  //     }, {
+  //       $set: {
+  //         matches
+  //       }
+  //     }, {
+  //       upsert: true
+  //     }, (error, numAffected, affectedDocuments, upsert) => {
+  //       // console.log(error, numAffected, affectedDocuments, upsert)
+  //       error ? reject(error) : resolve(numAffected)
+  //     })
+  //   })
+  // })
+  // const data = await Promise.all(promises)
+  // console.log('done', data)
+  // const myMatches = matches.filter(({ login }) => login === 'alextanhongpin' || login === 'roylee0704')
+  // console.log(JSON.stringify(myMatches, null, 2))
+
+  db.profiles.find({ login: 'alextanhongpin' }, (_, docs) => {
+    console.log(JSON.stringify(docs, null, 2))
+  })
+}
+main()

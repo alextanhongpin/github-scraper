@@ -10,8 +10,12 @@ function datastore (name) {
 
 const users = datastore('users')
 const repos = datastore('repos')
+const profiles = datastore('profiles')
+const analytics = datastore('analytics')
 
 module.exports = {
   users,
-  repos
+  repos,
+  profiles,
+  analytics
 }

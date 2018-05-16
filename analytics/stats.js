@@ -108,8 +108,8 @@ const flattenProfile = ({
   watchersCount,
   forksCount
 }) => {
-  const flattendLanguages = topLanguages.reduce((acc, doc) => {
-    acc[`lang__${doc.lang}`] = doc.count
+  const flattenedLanguages = topLanguages.reduce((acc, doc) => {
+    acc[`lang__${doc.lang}`] = doc.score
     return acc
   }, {})
   const flattenedKeywords = topKeywords.reduce((acc, doc) => {
@@ -117,7 +117,7 @@ const flattenProfile = ({
     return acc
   }, {})
   return {
-    ...flattendLanguages,
+    ...flattenedLanguages,
     ...flattenedKeywords,
     totalCount,
     login,
