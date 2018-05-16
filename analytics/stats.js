@@ -1,5 +1,6 @@
+// This program gets the top
 const login = 'alextanhongpin'
-const user = require(`./data/${login}.json`)
+const user = require(`../data/${login}.json`)
 console.log(`user:\n  ${login}`)
 console.log('total repos:', user.data.length)
 

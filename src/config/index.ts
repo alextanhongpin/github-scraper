@@ -39,6 +39,32 @@ const config = convict({
     doc: 'The date Github is published - used as default date when none is found',
     format: String,
     default: new Date(2008, 3, 1).toString()
+  },
+  cron: {
+    fetch: {
+      doc: 'The crontab for the fetch cron - indicates how frequent to pool Github server to pull new users',
+      format: String,
+      default: '0 12 * * *',
+      env: 'CRON_FETCH_TAB'
+    },
+    enableFetch: {
+      doc: 'Feature toggle to enable the fetch cron for running',
+      format: Boolean,
+      default: false,
+      env: 'CRON_FETCH_ENABLE'
+    } 
+    update: {
+      doc: 'The crontab for the update cron - indicates how frequent to pool Github server to update user information',
+      format: String,
+      default: '* * * * *',
+      env: 'CRON_UPDATE_TAB'
+    },
+    enableUpdate: {
+      doc: 'Feature toggle to enable the update cron for running',
+      format: Boolean,
+      default: false,
+      env: 'CRON_UPDATE_ENABLE'
+    }
   }
 })
 

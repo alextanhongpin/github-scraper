@@ -11,21 +11,19 @@
 
 import { Response } from 'express'
 
-function baseErrorHandler (res: Response) {
+function BadRequest (res: Response) {
   return function (error: Error) {
     return res.status(400).json({
       error: error.message,
-      code: error.code
+      code: 400
     })
   }
 }
 
-function baseSuccessHandler (res: Response) {
+function Ok (res: Response) {
   return function (body: any) {
-    return res.status(200).json({
-      data: body
-    })
+    return res.status(200).json(body)
   }
 }
 
-export { baseErrorHandler, baseSuccessHandler }
+export { Ok, BadRequest }

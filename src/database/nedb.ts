@@ -25,13 +25,13 @@ const repos = datastore('repos')
 
 // Set the user's `login` field to be unique
 users.ensureIndex({ fieldName: 'login', unique: true }, (error: Error) => {
-  console.log(`#database db=users event=set login field to unique error=${error && error.message}`)
+  console.log(`#database db=users event=ensureIndex fieldName=login unique=true error=${error && error.message}`)
 })
 
 // Set the repo's `full_name`, e.g. alextanhongpin/hello-world to be unique
 // This won't clash if other users have repository of similar name johndoe/hello-world
 repos.ensureIndex({ fieldName: 'full_name', unique: true }, (error: Error) => {
-  console.log(`#database db=repos event=set full_name field to unique error=${error && error.message}`)
+  console.log(`#database db=repos event=ensureIndex fieldName=full_name unique=true error=${error && error.message}`)
 })
 
 export default {
