@@ -205,3 +205,14 @@ console.log('topWords')
 topWords.forEach(({ word, count }) => {
   console.log(`  ${word}: ${count} times`)
 })
+
+function getCountByField (docs, field) {
+  const out = docs.reduce((acc, repo) => {
+    return acc + repo[field]
+  }, 0)
+  return out
+}
+
+console.log('stargazers count:', getCountByField(user.data, 'stargazers_count'))
+console.log('watchers count:', getCountByField(user.data, 'watchers_count'))
+console.log('forks count:', getCountByField(user.data, 'forks_count'))

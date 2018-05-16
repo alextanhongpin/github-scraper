@@ -1,5 +1,7 @@
 const db = require('./db')
 
+// Sorts an array by the int for the given field
+// E.g. arr.sort(sortIntDesc('fieldName'))
 function sortIntDesc (key) {
   return (l, r) => {
     if (l[key] > r[key]) {
