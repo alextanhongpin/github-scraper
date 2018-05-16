@@ -1,218 +1,151 @@
-// This program gets the top
-const login = 'alextanhongpin'
-const user = require(`../data/${login}.json`)
-console.log(`user:\n  ${login}`)
-console.log('total repos:', user.data.length)
+const stopwords = require('./stopwords')
 
-const cache = user.data.reduce((acc, repo) => {
-  if (!acc[repo.language]) {
-    acc[repo.language] = 0
+// Get the total count of documents based on the key given
+const getCount = (key) => (docs) => docs.reduce((acc, doc) => {
+  const value = doc[key]
+  if (!acc[value]) {
+    acc[value] = 0
   }
-  acc[repo.language] += 1
+  acc[value] += 1
   return acc
 }, {})
 
-const totalCount = Object.values(cache).reduce((l, r) => l + r, 0)
+// Get the total sum of all the arguments
+const sum = (...args) => args.reduce((l, r) => l + r, 0)
 
-const scores = Object.keys(cache).map((lang) => {
-  return {
-    lang,
-    score: Math.round(cache[lang] / totalCount * 100),
-    count: cache[lang]
+// Take a given number of item from an array
+const take = (limit) => (...args) => args.slice(0, limit)
+
+// Take only a specific key
+const pick = (key) => (...args) => args.map(arg => arg[key])
+
+// Take an object and flatten it into array
+const objectToArray = (obj) => Object.keys(obj).map((key) => ({
+  key,
+  value: obj[key]
+}))
+
+// Takes a flattened list (1-dimensional) and convert it into and object
+const arrayToObject = (arr) => arr.reduce((acc, item) => {
+  if (!acc[item]) {
+    acc[item] = 0
   }
-})
-
-const topN = (arr, key, n = 5, excludeNull = true, excludeZeros = true) => {
-  const sorted = arr
-    .filter(repo => excludeNull ? repo.lang !== 'null' : true)
-    .filter(repo => excludeZeros ? repo.score !== 0 : true)
-    .sort((a, b) => {
-      const left = a[key]
-      const right = b[key]
-      return sortNumbers(left, right)
-    })
-  return sorted.slice(0, n)
-}
-
-function sortNumbers (left, right) {
-  if (left > right) {
-    return -1
-  } else if (left === right) {
-    return 0
-  } else if (left < right) {
-    return 1
-  }
-}
-
-const top5 = topN(scores, 'score', 10)
-console.log('top5:')
-top5.forEach(({ lang, score, count }) => console.log(`  ${lang}: ${score}%, ${count} repos`))
-
-const wordVectors = user.data.reduce((acc, repo) => {
-  return acc.concat(repo.description ? repo.description.split(' ').map(str => str.toLowerCase()) : [])
-}, [])
-
-const wordDict = wordVectors.reduce((cache, word) => {
-  if (!cache[word]) {
-    cache[word] = 0
-  }
-  cache[word] += 1
-  return cache
+  acc[item] += 1
+  return acc
 }, {})
 
-const stopwords = [
-  'i',
-  'me',
-  'my',
-  'myself',
-  'we',
-  'our',
-  'ours',
-  'ourselves',
-  'you',
-  'your',
-  'yours',
-  'yourself',
-  'yourselves',
-  'he',
-  'him',
-  'his',
-  'himself',
-  'she',
-  'her',
-  'hers',
-  'herself',
-  'it',
-  'its',
-  'itself',
-  'they',
-  'them',
-  'their',
-  'theirs',
-  'themselves',
-  'what',
-  'which',
-  'who',
-  'whom',
-  'this',
-  'that',
-  'these',
-  'those',
-  'am',
-  'is',
-  'are',
-  'was',
-  'were',
-  'be',
-  'been',
-  'being',
-  'have',
-  'has',
-  'had',
-  'having',
-  'do',
-  'does',
-  'did',
-  'doing',
-  'a',
-  'an',
-  'the',
-  'and',
-  'but',
-  'if',
-  'or',
-  'because',
-  'as',
-  'until',
-  'while',
-  'of',
-  'at',
-  'by',
-  'for',
-  'with',
-  'about',
-  'against',
-  'between',
-  'into',
-  'through',
-  'during',
-  'before',
-  'after',
-  'above',
-  'below',
-  'to',
-  'from',
-  'up',
-  'down',
-  'in',
-  'out',
-  'on',
-  'off',
-  'over',
-  'under',
-  'again',
-  'further',
-  'then',
-  'once',
-  'here',
-  'there',
-  'when',
-  'where',
-  'why',
-  'how',
-  'all',
-  'any',
-  'both',
-  'each',
-  'few',
-  'more',
-  'most',
-  'other',
-  'some',
-  'such',
-  'no',
-  'nor',
-  'not',
-  'only',
-  'own',
-  'same',
-  'so',
-  'than',
-  'too',
-  'very',
-  's',
-  't',
-  'can',
-  'will',
-  'just',
-  'don',
-  'should',
-  'now'
-]
-const topWords = Object.keys(wordDict).map(word => {
-  return {
-    word,
-    count: wordDict[word]
+const sortNumbers = (left, right) => {
+  if (left > right) {
+    return -1
   }
-}).filter(({ word, score }) => {
-  return !stopwords.includes(word)
-}).sort((a, b) => {
-  const [left, right] = [a.count, b.count]
-  return sortNumbers(left, right)
-}).slice(0, 10)
-
-console.log('topWords')
-topWords.forEach(({ word, count }) => {
-  console.log(`  ${word}: ${count} times`)
-})
-
-function getCountByField (docs, field) {
-  const out = docs.reduce((acc, repo) => {
-    return acc + repo[field]
-  }, 0)
-  return out
+  if (left === right) {
+    return 0
+  }
+  return 1
 }
 
-console.log('stargazers count:', getCountByField(user.data, 'stargazers_count'))
-console.log('watchers count:', getCountByField(user.data, 'watchers_count'))
-console.log('forks count:', getCountByField(user.data, 'forks_count'))
+// Sort numbers in descending based on the key
+const sortNumberDescending = (key) => (a, b) => sortNumbers(a[key], b[key])
+
+// Returns the top languages for the particular user
+const getTopLanguages = (repos, limit = 10) => {
+  const reposWithLanguage = repos.filter(({ language }) => language)
+  const languageDict = getCount('language')(reposWithLanguage)
+  const totalCount = sum(...Object.values(languageDict))
+  const scores = objectToArray(languageDict)
+  .map(({ key, value }) => ({
+    lang: key,
+    score: Math.round(value / totalCount * 100),
+    count: value
+  }))
+  .sort(sortNumberDescending('score'))
+  return take(limit)(...scores)
+}
+
+const getBagOfWords = (repos) => {
+  return repos
+    .map(({ description }) => description || '')
+    .map((description) => description.toLowerCase())
+    .map((description) => description.split(' '))
+    .reduce((a, b) => a.concat(b), [])
+}
+
+// Utilities to get the top keywords
+const getTopKeywords = (repos, limit = 10) => {
+  const bagOfWords = arrayToObject(getBagOfWords(repos))
+  const sortedKeywordsWithScore = objectToArray(bagOfWords)
+    .filter(({ key, value }) => !stopwords.includes(key))
+    .sort(sortNumberDescending('value'))
+    .map(({ key, value }) => ({ word: key, count: value }))
+
+  return take(limit)(...sortedKeywordsWithScore)
+}
+
+function createProfile (login, repos, limit = 10) {
+  const topLanguages = getTopLanguages(repos, limit)
+  const topKeywords = getTopKeywords(repos, limit)
+  const stargazersCount = sum(...pick('stargazers_count')(...repos))
+  const watchersCount = sum(...pick('watchers_count')(...repos))
+  const forksCount = sum(...pick('forks_count')(...repos))
+
+  return {
+    totalCount: repos.length,
+    login,
+    topLanguages,
+    topKeywords,
+    stargazersCount,
+    watchersCount,
+    forksCount
+  }
+}
+
+const flattenProfile = ({
+  totalCount,
+  login,
+  topLanguages,
+  topKeywords,
+  stargazersCount,
+  watchersCount,
+  forksCount
+}) => {
+  const flattendLanguages = topLanguages.reduce((acc, doc) => {
+    acc[`lang__${doc.lang}`] = doc.count
+    return acc
+  }, {})
+  const flattenedKeywords = topKeywords.reduce((acc, doc) => {
+    acc[`word__${doc.word}`] = doc.count
+    return acc
+  }, {})
+  return {
+    ...flattendLanguages,
+    ...flattenedKeywords,
+    totalCount,
+    login,
+    stargazersCount,
+    watchersCount,
+    forksCount
+  }
+}
+
+const similarityProfile = (profile1, profile2) => {
+  const uniqueKeys = new Set(Object.keys(profile1).concat(Object.keys(profile2)))
+  const score = [...uniqueKeys].map((key) => {
+    const value1 = profile1[key]
+    const value2 = profile2[key]
+    if (value1 && value2) {
+      if (typeof value1 === 'string' || typeof value2 === 'string') {
+        return 0
+      }
+      return Math.pow(value1 - value2, 2)
+    }
+    return 0
+  }).reduce((a, b) => a + b, 0)
+  if (score === 0) return 0
+  return 1 / (1 + Math.sqrt(score))
+}
+
+module.exports = {
+  createProfile,
+  flattenProfile,
+  similarityProfile
+}

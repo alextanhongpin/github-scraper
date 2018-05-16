@@ -1,103 +1,117 @@
 const db = require('./db')
+const {
+  createProfile,
+  flattenProfile,
+  similarityProfile
+} = require('./stats')
 
 // Sorts an array by the int for the given field
 // E.g. arr.sort(sortIntDesc('fieldName'))
 function sortIntDesc (key) {
   return (l, r) => {
-    if (l[key] > r[key]) {
+    const a = l[key]
+    const b = r[key]
+    if (a > b) {
       return -1
-    } else if (l.score === r.score) {
-      return 0
-    } else {
-      return 1
     }
+    if (a === b) {
+      return 0
+    }
+    return 1
   }
 }
 
 // countUsers returns the total number of users in Malaysia
 function countUsers (db) {
-  db.users.count({}, (err, docs) => {
-    if (err) throw err
-    console.log(docs)
+  return new Promise((resolve, reject) => {
+    db.users.count({}, (error, count) => {
+      error ? reject(error) : resolve(count)
+    })
   })
 }
 
 // countUsersByYears returns the total number of users registered by year, and drilled down to months
 function countUsersByYears (db) {
-  db.users.find({}, (err, docs) => {
-    if (err) throw err
-    const usersByYears = docs.reduce((acc, doc) => {
-      const dateObject = new Date(doc.created_at)
-      const year = dateObject.getFullYear()
-      const month = dateObject.getMonth()
-      const yearMonth = `${year}:${month}`
-
-      // Years only
-      if (!acc.years[year]) {
-        acc.years[year] = 0
+  return new Promise((resolve, reject) => {
+    db.users.find({}, (error, docs) => {
+      if (error) {
+        return reject(error)
       }
-      acc.years[year] += 1
+      const usersByYears = docs.reduce((acc, doc) => {
+        const dateObject = new Date(doc.created_at)
+        const year = dateObject.getFullYear()
+        const month = dateObject.getMonth()
 
-      if (!acc.months[yearMonth]) {
-        acc.months[yearMonth] = 0
-      }
-      acc.months[yearMonth] += 1
-
-      return acc
-    }, {years: {}, months: {}})
-    console.log(usersByYears)
+        if (!acc[year]) {
+          acc[year] = {
+            total: 0
+          }
+        }
+        acc[year].total += 1
+        if (!acc[year][month]) {
+          acc[year][month] = 0
+        }
+        acc[year][month] += 1
+        return acc
+      }, {})
+      resolve(usersByYears)
+    })
   })
 }
 
 // Returns the total count of repos created by users in Malaysia (non-fork)
 function countRepos (db) {
-  db.repos.count({
-    fork: false
-  }, (err, docs) => {
-    if (err) throw err
-    console.log(docs)
+  return new Promise((resolve, reject) => {
+    db.repos.count({
+      fork: false
+    }, (error, count) => {
+      error ? reject(error) : resolve(count)
+    })
   })
 }
 
-function top10LastUpdatedRepos (db) {
-  db.repos.find({
-    fork: false
-  })
-  .sort({
-    updated_at: -1
-  })
-  .limit(10)
-  .exec((err, docs) => {
-    if (err) throw err
-    console.log(docs)
-  })
-}
-
-function top10MostStarsRepos (db) {
-  db.repos.find({
-    fork: false
-  })
-  .sort({
-    stargazers_count: -1
-  })
-  .limit(10)
-  .exec((err, docs) => {
-    if (err) throw err
-    console.log(docs)
+function top10LastUpdatedRepos (db, limit = 10) {
+  return new Promise((resolve, reject) => {
+    db.repos.find({
+      fork: false
+    })
+    .sort({
+      updated_at: -1
+    })
+    .limit(limit)
+    .exec((error, docs) => {
+      error ? reject(error) : resolve(docs)
+    })
   })
 }
 
-function top10MostWatchersRepos (db) {
-  db.repos.find({
-    fork: false
+function top10MostStarsRepos (db, limit = 10) {
+  return new Promise((resolve, reject) => {
+    db.repos.find({
+      fork: false
+    })
+    .sort({
+      stargazers_count: -1
+    })
+    .limit(limit)
+    .exec((error, docs) => {
+      error ? reject(error) : resolve(docs)
+    })
   })
-  .sort({
-    watchers_count: -1
-  })
-  .limit(10)
-  .exec((err, docs) => {
-    if (err) throw err
-    console.log(docs)
+}
+
+function top10MostWatchersRepos (db, limit = 10) {
+  return new Promise((resolve, reject) => {
+    db.repos.find({
+      fork: false
+    })
+    .sort({
+      watchers_count: -1
+    })
+    .limit(limit)
+    .exec((error, docs) => {
+      error ? reject(error) : resolve(docs)
+    })
   })
 }
 
@@ -123,85 +137,146 @@ function _top20Languages (docs) {
   const filtered = sortedInDescendingOrder.filter(({ lang }) => lang !== 'null')
   return filtered
 }
-function top20LanguageGlobal (db) {
-  db.repos.find({
-    fork: false
-  }, (err, docs) => {
-    if (err) throw err
-    const languages = _top20Languages(docs)
 
-    console.log('top 20 languages:', languages.slice(0, 20))
+function top20LanguageGlobal (db, limit = 20) {
+  return new Promise((resolve, reject) => {
+    db.repos.find({
+      fork: false
+    }, (error, docs) => {
+      error ? reject(error) : resolve(_top20Languages(docs).slice(0, limit))
+    })
   })
 }
 
-// non-forked repos
 function top10userWithMostRepos (db) {
-  db.repos.find({
-    fork: false
-  }, (err, docs) => {
-    if (err) throw err
-    const userWithRepos = docs.reduce((acc, doc) => {
-      const owner = doc.owner.login
-      if (!acc[owner]) {
-        acc[owner] = 0
+  return new Promise((resolve, reject) => {
+    db.repos.find({
+      fork: false
+    }, (error, docs) => {
+      if (error) {
+        return reject(error)
       }
-      acc[owner] += 1
-      return acc
-    }, {})
 
-    const userWithReposScore = Object.keys(userWithRepos).map((login) => {
-      const score = userWithRepos[login]
-      return {
-        login,
-        score
-      }
+      const repoDict = docs.reduce((acc, doc) => {
+        const login = doc.owner.login
+        if (!acc[login]) {
+          acc[login] = {
+            count: 0,
+            login
+          }
+        }
+        acc[login].count += 1
+        return acc
+      }, {})
+
+      const repoArr = Object.values(repoDict)
+        .sort(sortIntDesc('count'))
+        .slice(0, 20)
+
+      return resolve(repoArr)
     })
-
-    console.log(userWithReposScore.sort(sortIntDesc('score')).slice(0, 20))
   })
 }
 
 function userWithReposCountByLanguage (db) {
-  db.repos.find({
-    fork: false
-  }, (err, docs) => {
-    if (err) throw err
-    const loginWithRepo = docs.reduce((acc, doc) => {
-      const lang = doc.language
-      const login = doc.owner.login
-      if (!lang) return acc
+  return new Promise((resolve, reject) => {
+    db.repos.find({
+      fork: false
+    }, (error, docs) => {
+      if (error) {
+        return reject(error)
+      }
+      const loginWithRepo = docs.reduce((acc, doc) => {
+        const lang = doc.language
+        const login = doc.owner.login
+        if (!lang) return acc
 
-      if (!acc[login]) {
-        acc[login] = {}
-      }
-      if (!acc[login][lang]) {
-        acc[login][lang] = 0
-      }
-      acc[login][lang] += 1
-      return acc
-    }, {})
+        if (!acc[login]) {
+          acc[login] = {}
+        }
+        if (!acc[login][lang]) {
+          acc[login][lang] = 0
+        }
+        acc[login][lang] += 1
+        return acc
+      }, {})
 
-    const loginWithRepoScores = Object.keys(loginWithRepo).map((login) => {
-      return {
-        login,
-        ...loginWithRepo[login]
-      }
+      const loginWithRepoScores = Object.keys(loginWithRepo).map((login) => {
+        return {
+          login,
+          ...loginWithRepo[login]
+        }
+      })
+
+      // Take the top 20
+      const languages = _top20Languages(docs).slice(0, 20)
+      const languageWithScore = languages.map(({ lang }) => {
+        return {
+          lang,
+          top: loginWithRepoScores.filter(doc => doc[lang]).sort(sortIntDesc(lang)).slice(0, 20)
+        }
+      })
+      return resolve(languageWithScore)
     })
-
-    // Take the top 20
-    const languages = _top20Languages(docs).slice(0, 20)
-    const languageWithScore = languages.map(({ lang }) => {
-      return {
-        lang,
-        top: loginWithRepoScores.filter(doc => doc[lang]).sort(sortIntDesc(lang)).slice(0, 20)
-      }
-    })
-    console.log(JSON.stringify(languageWithScore, null, 2))
   })
 }
 
-// countUsers
-// countUsersByYears
+function getUsersRepos (db, limit = 5) {
+  return new Promise((resolve, reject) => {
+    db.repos.find({
+      fork: false
+    }, (error, docs) => {
+      if (error) {
+        return reject(error)
+      }
+
+      const userReposDict = docs.reduce((acc, doc) => {
+        const login = doc.owner.login
+        if (!acc[login]) {
+          acc[login] = {
+            repos: [],
+            login
+          }
+        }
+        acc[login].repos.push(doc)
+        return acc
+      }, {})
+
+      const profiles = Object.values(userReposDict).map(({ login, repos }) => {
+        const profile = createProfile(login, repos)
+        return profile
+      })
+
+      const matches = profiles.map((profile1, i) => {
+        const features1 = flattenProfile(profile1)
+        return {
+          login: profile1.login,
+          matches: profiles.map((profile2, j) => {
+            if (i < j) {
+              const features2 = flattenProfile(profile2)
+            // Cannot match yourself
+              return {
+                login: profile2.login,
+                score: similarityProfile(features1, features2)
+              }
+            } else {
+              return {
+                score: -Infinity
+              }
+            }
+          })
+        .filter(({ score }) => score >= 0)
+        .sort(sortIntDesc('score'))
+        .slice(0, limit)
+        }
+      }).filter(({ matches }) => matches.length)
+      resolve(matches)
+    })
+  })
+}
+
+// countUsers(db)
+// countUsersByYears(db)
 // countRepos
 // top10LastUpdatedRepos
 // top10MostStarsRepos(db)
@@ -209,3 +284,4 @@ function userWithReposCountByLanguage (db) {
 // top20LanguageGlobal(db)
 // top10userWithMostRepos(db)
 // userWithReposCountByLanguage(db)
+// getUsersRepos(db)
