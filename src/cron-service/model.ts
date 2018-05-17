@@ -10,7 +10,7 @@ import Retry from '../helper/circuit-retry'
 // Constants
 const DAYS = 1000 * 60 * 60 * 24
 
-const Model = (config: any, db: any, repoService: any, searchService: any, userService: any) => {
+const Model = (config: any, db: any, repoService: any, searchService: any, userService: any, analyticService: any) => {
 
   async function fetchUsers () {
     const country = config.get('country')
@@ -122,9 +122,19 @@ const Model = (config: any, db: any, repoService: any, searchService: any, userS
     })
   }
 
+  async function buildAnalytics () {
+    return analyticService.buildAnalytics()
+  }
+
+  async function buildProfile () {
+    return analyticService.buildUserProfile()
+  }
+
   return {
     fetch: fetchUsers,
-    update: updateUsers
+    update: updateUsers,
+    analytic: buildAnalytics,
+    profile: buildProfile
   }
 }
 

@@ -50,7 +50,7 @@ const Store = ({ config, db }: { config: any, db: any }): UserStore => {
   async function create (req: CreateRequest): Promise<CreateResponse> {
     return new Promise<CreateRequest>((resolve, reject) => {
       db.users.insert(req.users, (error: Error, newDoc: any) => {
-        console.log(`#userStore.create newDoc = ${newDoc.length}`)
+        console.log(`#userStore.create newDoc = ${newDoc}`)
         error ? reject(error) : resolve({ users: newDoc })
       })
     })

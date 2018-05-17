@@ -433,8 +433,8 @@ async function main () {
   // const myMatches = matches.filter(({ login }) => login === 'alextanhongpin' || login === 'roylee0704')
   // console.log(JSON.stringify(myMatches, null, 2))
 
-  db.profiles.find({ login: 'alextanhongpin' }, (_, docs) => {
-    console.log(JSON.stringify(docs, null, 2))
-  })
+  // db.profiles.find({ login: 'alextanhongpin' }, (_, docs) => {
+  //   console.log(JSON.stringify(docs, null, 2))
+  // })
 }
 main()

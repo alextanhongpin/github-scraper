@@ -52,7 +52,7 @@ const config = convict({
       format: Boolean,
       default: false,
       env: 'CRON_FETCH_ENABLE'
-    } 
+    },
     update: {
       doc: 'The crontab for the update cron - indicates how frequent to pool Github server to update user information',
       format: String,
@@ -64,6 +64,30 @@ const config = convict({
       format: Boolean,
       default: false,
       env: 'CRON_UPDATE_ENABLE'
+    },
+    analytic: {
+      doc: 'The crontab for the analytic cron - indicates how frequent to update the github analytic data',
+      format: String,
+      default: '0 12 * * *',
+      env: 'CRON_ANALYTIC_TAB'
+    },
+    enableAnalytic: {
+      doc: 'Feature toggle to enable the analytic cron for running',
+      format: Boolean,
+      default: false,
+      env: 'CRON_ANALYTIC_ENABLE'
+    },
+    profile: {
+      doc: 'The crontab for the profile cron - indicates how frequent to build user profiles and matches',
+      format: String,
+      default: '0 12 * * *',
+      env: 'CRON_PROFILE_TAB'
+    },
+    enableProfile: {
+      doc: 'Feature toggle to enable the profile cron for running',
+      format: Boolean,
+      default: false,
+      env: 'CRON_PROFILe_ENABLE'
     }
   }
 })

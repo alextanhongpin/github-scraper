@@ -10,7 +10,8 @@
     "preserveConstEnums": true,
     "allowJs": true,
     "sourceMap": true,
-    "typeRoots": ["typings", "node_modules/@types"]
+    "typeRoots": ["typings", "node_modules/@types"],
+    "lib": ["es7", "dom"],
   },
   "files": [
     "./typings/circuit-retry/index.d.ts",

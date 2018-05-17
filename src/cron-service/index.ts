@@ -1,9 +1,9 @@
 import Model from './model'
 import * as cron from 'node-cron'
 
-const Service = (config: any, db: any, repoService: any, searchService: any, userService: any) => {
+const Service = (config: any, db: any, repoService: any, searchService: any, userService: any, analyticService: any) => {
   // Setup the model
-  const model = Model(config, db, repoService, searchService, userService)
+  const model = Model(config, db, repoService, searchService, userService, analyticService)
 
   // fetch will fetch new Github users daily based on the last delta timestamp
   const fetch = (tab: string): any => {
@@ -31,9 +31,42 @@ const Service = (config: any, db: any, repoService: any, searchService: any, use
     }, false)
   }
 
+  const profile = (tab: string): any => {
+    
+    // return cron.schedule(tab, async function() {
+    //   try {
+    //     console.log(`cron::profile => ${tab}`)
+    //     await model.profile()
+    //     console.log('cron::profile => success')
+    //   } catch (error) {
+    //     console.log('cron::profile => error:', error.message)
+    //   }
+    // }, false)
+    return {
+      start () {
+        model.profile()
+      }
+    }
+  }
+
+  const analytic =  (tab: string): any => {
+
+    return cron.schedule(tab, async function() {
+      try {
+        console.log(`cron::analytic => ${tab}`)
+        await model.analytic()
+        console.log('cron::analytic => success')
+      } catch (error) {
+        console.log('cron::analytic => error:', error.message)
+      }
+    }, false)
+  }
+
   return {
     fetch,
-    update
+    update,
+    profile,
+    analytic
   }
 }
 
