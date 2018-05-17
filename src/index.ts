@@ -11,6 +11,7 @@
 import * as express from 'express'
 import * as bodyParser from 'body-parser'
 import * as Bluebird from 'bluebird'
+import * as cors from 'cors'
 
 import * as moment from 'moment'
 
@@ -37,6 +38,7 @@ async function main () {
   const app: express.Application = express()
   app.use(bodyParser.urlencoded({ extended: false }))
   app.use(bodyParser.json())
+  app.use(cors())
 
   const searchService = SearchService({ config })
   const userService = UserService({ config, db })
