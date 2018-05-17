@@ -86,14 +86,7 @@ const Model = ({ store }: { store: UserStore }): UserModel => {
   }
 
   return {
-    all: (req: AllRequest): Promise<AllResponse> => store.all(req),
-    checkExist: (req: CheckExistRequest): Promise<CheckExistResponse> => store.checkExist(req),
-    count: (req: CountRequest): Promise<CountResponse> => store.count(req),
-    create: (req: CreateRequest): Promise<CreateResponse> => store.create(req),
-    lastCreated: (req: LastCreatedRequest): Promise<LastCreatedResponse> => store.lastCreated(req),
-    fetchOne: (req: FetchOneRequest): Promise<FetchOneResponse> => store.fetchOne(req),
-    getOne: (req: GetOneRequest): Promise<GetOneResponse> => store.getOne(req),
-    update: (req: UpdateRequest): Promise<UpdateResponse> => store.update(req),
+    ...store,
     fetchMany,
     createMany
   }

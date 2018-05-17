@@ -188,19 +188,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
   }
 
   return {
-    all: (req: AllRequest): Promise<AllResponse> => store.all(req),
-    allByUser: (req: AllByUserRequest): Promise<AllByUserResponse> => store.allByUser(req),
-    getRepos: (req: GetReposRequest): Promise<GetReposResponse> => store.getRepos(req),
-    checkExist: (req: CheckExistRequest): Promise<CheckExistResponse> => store.checkExist(req),
-    count: (req: CountRequest): Promise<CountResponse> => store.count(req),
-    create: (req: CreateRequest): Promise<CreateResponse> => store.create(req),
-    createOne: (req: CreateOneRequest): Promise<CreateOneResponse> => store.createOne(req),
-    lastCreated: (req: LastCreatedRequest): Promise<LastCreatedResponse> => store.lastCreated(req),
-    fetchAll: (req: FetchAllRequest): Promise<FetchAllResponse> => store.fetchAll(req),
-    update: (req: UpdateRequest): Promise<UpdateResponse> => store.update(req),
-    getRepoCountByLogin: (req: GetRepoCountByLoginRequest): Promise<GetRepoCountByLoginResponse> => store.getRepoCountByLogin(req),
-    getLastRepoByLogin: (req: GetLastRepoByLoginRequest): Promise<GetLastRepoByLoginResponse> => store.getLastRepoByLogin(req),
-    getReposSince: (req: GetReposSinceRequest): Promise<GetReposSinceResponse> => store.getReposSince(req),
+    ...store,
     fetchAllForUser,
     fetchAllForUsers,
     createMany,

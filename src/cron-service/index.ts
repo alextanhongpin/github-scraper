@@ -32,21 +32,15 @@ const Service = (config: any, db: any, repoService: any, searchService: any, use
   }
 
   const profile = (tab: string): any => {
-    
-    // return cron.schedule(tab, async function() {
-    //   try {
-    //     console.log(`cron::profile => ${tab}`)
-    //     await model.profile()
-    //     console.log('cron::profile => success')
-    //   } catch (error) {
-    //     console.log('cron::profile => error:', error.message)
-    //   }
-    // }, false)
-    return {
-      start () {
-        model.profile()
+    return cron.schedule(tab, async function() {
+      try {
+        console.log(`cron::profile => ${tab}`)
+        await model.profile()
+        console.log('cron::profile => success')
+      } catch (error) {
+        console.log('cron::profile => error:', error.message)
       }
-    }
+    }, false)
   }
 
   const analytic =  (tab: string): any => {

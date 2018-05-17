@@ -64,6 +64,8 @@ async function main () {
     profileCron.start()
   }
 
+  analyticService.buildUserProfile()
+
   console.log(`#cron name=fetch enabled=${config.get('cron.enableFetch')} tab="${config.get('cron.fetch')}"`)
   console.log(`#cron name=update enabled=${config.get('cron.enableUpdate')} tab="${config.get('cron.update')}"`)
   console.log(`#cron name=profile enabled=${config.get('cron.enableProfile')} tab="${config.get('cron.profile')}"`)

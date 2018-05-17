@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon dist/index.js",
+    "start": "nodemon --max_old_space_size=4096 dist/index.js",
     "dev": "./node_modules/.bin/tsc --watch",
     "build:live": "nodemon --exec ./node_modules/.bin/ts-node --ignoreWarnings -- src/index.ts",
     "build": "babel src -d dist --copy-files",
