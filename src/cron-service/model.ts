@@ -114,6 +114,10 @@ const Model = (config: any, db: any, repoService: any, searchService: any, userS
           return results
         } catch (error) {
           console.log(`#updateService: login=${login} error=${error}`)
+          if (error.message === '404 - {"message":"Not Found","documentation_url":"https://developer.github.com/v3/users/#get-a-single-user"}') {
+            await userService.remove(login)
+            console.log(`#updateService event=removing_user login=${login}`)
+          }
           return null
         }
       }, { concurrency: 5 })

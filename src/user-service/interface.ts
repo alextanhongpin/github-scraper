@@ -91,6 +91,7 @@ export interface UserStore {
   lastCreated(req: LastCreatedRequest): Promise<LastCreatedResponse>;
   fetchOne(req: FetchOneRequest): Promise<FetchOneResponse>;
   update(req: UpdateRequest): Promise<UpdateResponse>;
+  remove(login: string): Promise<any>;
 }
 
 export interface UserModel extends UserStore {

@@ -103,6 +103,14 @@ const Store = ({ config, db }: { config: any, db: any }): UserStore => {
     })
   }
 
+  async function remove (login: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      db.users.remove({ login }, (error: Error, docs: any) => {
+        error ? reject(error) : resolve(docs)
+      })
+    })
+  }
+
   return {
     fetchOne,
     getOne,
@@ -111,7 +119,8 @@ const Store = ({ config, db }: { config: any, db: any }): UserStore => {
     lastCreated,
     update,
     checkExist,
-    all
+    all,
+    remove
   }
 }
 

@@ -170,6 +170,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     .reduce((acc: Repo[], repos: Repo[]) => {
       return acc.concat(repos)
     }, [])
+    .filter((nonNull: any) => nonNull !== null)
 
      const createReposPromises: Repo[] = await Promise.all(repos.items.concat(restRepos).map(async(repo: Repo) => {
         try {
