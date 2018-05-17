@@ -34,7 +34,7 @@ import AnalyticRoutes from './analytic-service/route'
 import { generatePages } from './helper/page'
 import Retry from './helper/circuit-retry'
 
-async function main () {
+async function main() {
   const app: express.Application = express()
   app.use(bodyParser.urlencoded({ extended: false }))
   app.use(bodyParser.json())

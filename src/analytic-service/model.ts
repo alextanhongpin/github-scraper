@@ -18,18 +18,18 @@ const getTopLanguages = (repos: Repo[], limit: number = 10): Language[] => {
   const languageDict = getCount('language')(reposWithLanguage)
   const totalCount = sum(...Object.values(languageDict))
   const scores = objectToArray(languageDict)
-  .map(({ key, value }) => ({
-    lang: key,
-    score: Math.round(value / totalCount * 100),
-    count: value
-  }))
-  .sort(sortNumberDescending('score'))
+    .map(({ key, value }) => ({
+      lang: key,
+      score: Math.round(value / totalCount * 100),
+      count: value
+    }))
+    .sort(sortNumberDescending('score'))
   return take(limit)(...scores)
 }
 
 const getBagOfWords = (repos: Repo[]) => {
   return repos
-    .map(({ description } : { description: string }) => description || '')
+    .map(({ description }: { description: string }) => description || '')
     .map((description: string) => description.toLowerCase())
     .map((description: string) => description.split(' '))
     .reduce((a: string[], b: string[]) => a.concat(b), [])
@@ -46,7 +46,7 @@ const getTopKeywords = (repos: Repo[], limit: number = 10): Keyword[] => {
   return take(limit)(...sortedKeywordsWithScore)
 }
 
-const createProfile = (login: string, repos: Repo[], limit: number = 10): Profile => {
+const createProfile = (login: string, repos: Repo[], avatarUrl: string, htmlUrl: string, limit: number = 10): Profile => {
   const topLanguages = getTopLanguages(repos, limit)
   const topKeywords = getTopKeywords(repos, limit)
   const stargazersCount = sum(...pick('stargazers_count')(...repos))
@@ -60,7 +60,9 @@ const createProfile = (login: string, repos: Repo[], limit: number = 10): Profil
     topKeywords,
     stargazersCount,
     watchersCount,
-    forksCount
+    forksCount,
+    avatarUrl,
+    htmlUrl
   }
 }
 
@@ -112,8 +114,8 @@ const similarityProfile = (profile1: any, profile2: any): number => {
 
 
 const Model = ({ store }: { store: AnalyticStore }): AnalyticModel => {
-  
-  async function buildAnalytics (): Promise<any> {
+
+  async function buildAnalytics(): Promise<any> {
     console.log('#analytic-service fn=buildAnalytics event=start')
     const [userCount, userCountByYears, repoCount, leaderboardLastUpdatedRepos, leaderboardMostStarsRepos, leaderboardMostWatchersRepos, leaderboardUserWithMostRepos, leaderboardUserWithReposByLanguage, leaderboardLanguages] = await Promise.all([
       store.userCount(),
@@ -142,13 +144,13 @@ const Model = ({ store }: { store: AnalyticStore }): AnalyticModel => {
     return response
   }
 
-  async function buildUserProfile (): Promise<any> {
+  async function buildUserProfile(): Promise<any> {
     console.time('#analytic-service fn=buildUserProfile')
     console.log('#analytic-service fn=buildUserProfile event=start')
     const repos = await store.getUsersRepos()
     const profiles: Profile[] = Object.values(repos)
-      .map(({ login, repos }: { login: string, repos: Repo[]}) => {
-        const profile = createProfile(login, repos)
+      .map(({ login, repos, avatar_url, html_url }: { login: string, repos: Repo[], avatar_url: string, html_url: string }) => {
+        const profile = createProfile(login, repos, avatar_url, html_url)
         return profile
       })
 
@@ -166,22 +168,26 @@ const Model = ({ store }: { store: AnalyticStore }): AnalyticModel => {
           const features2 = constructFeatures(profile2)
           return {
             login: profile2.login,
-            score: similarityProfile(features1, features2)
+            avatarUrl: profile2.avatarUrl,
+            htmlUrl: profile2.htmlUrl,
+            score: similarityProfile(features1, features2),
           }
-        } 
+        }
         return {
           score: -Infinity
         }
       })
-      .filter(({ score }: { score: number }) => score >= 0)
-      .sort(sortNumberDescending('score'))
+        .filter(({ score }: { score: number }) => score >= 0)
+        .sort(sortNumberDescending('score'))
 
       return {
         login: profile1.login,
+        avatarUrl: profile1.avatarUrl,
+        htmlUrl: profile1.htmlUrl,
         matches: take(20)(...matches.reverse()) // The shorter the
       }
     })
-    .filter(({ matches }: Matches) => matches.length)
+      .filter(({ matches }: Matches) => matches.length)
 
     const promises = matches.map(({ login, matches }) => {
       return store.updateMatches(login, matches)

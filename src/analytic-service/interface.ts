@@ -17,6 +17,8 @@ export interface Keyword {
 export interface RepoCounter {
   login: string;
   count: number;
+  avatar_url: string;
+  html_url: string;
 }
 
 export interface UserRepos {
@@ -47,6 +49,8 @@ export interface Profile {
   stargazersCount: number;
   watchersCount: number;
   forksCount: number;
+  avatarUrl: string;
+  htmlUrl: string;
 }
 
 export interface AnalyticStore {
@@ -72,4 +76,4 @@ export interface AnalyticModel extends AnalyticStore {
   buildUserProfile(): Promise<any>;
 }
 
-export interface AnalyticService extends AnalyticModel {}
+export interface AnalyticService extends AnalyticModel { }
