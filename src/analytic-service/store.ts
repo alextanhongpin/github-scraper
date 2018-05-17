@@ -281,7 +281,7 @@ const Store = ({ config, db }: { config: any, db: any }): AnalyticStore => {
   // getProfile returns the user profile based on the login
   async function getProfile (login: string): Promise<Profile> {
     return new Promise<Profile>((resolve, reject) => {
-      db.profiles.find({
+      db.profiles.findOne({
         login
       }, (error: Error, doc: Profile) => {
         error ? reject(error) : resolve(doc)
