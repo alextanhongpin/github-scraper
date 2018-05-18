@@ -198,7 +198,17 @@ const Store = ({ config, db }: { config: any, db: any }): AnalyticStore => {
         const languageWithScore = languages.map(({ lang }) => {
           return {
             lang,
-            top: loginWithRepoScores.filter(doc => doc[lang]).sort(sortNumberDescending(lang)).slice(0, 20)
+            top: loginWithRepoScores.filter(doc => doc[lang])
+              .sort(sortNumberDescending(lang))
+              .slice(0, 20).map(data => {
+                const { avatar_url, html_url, login } = data
+                return {
+                  avatar_url,
+                  html_url,
+                  login,
+                  count: data[lang]
+                }
+              })
           }
         })
         return resolve(languageWithScore)
