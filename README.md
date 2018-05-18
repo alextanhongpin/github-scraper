@@ -55,6 +55,32 @@ $ npm i -g foreman
 $ nf start
 ```
 
+## API Calls
+
+### Analytics Endpoint
+
+`GET /analytics?type=<TYPE>`:
+
+- user_count
+- user_count_by_years
+- repo_count
+- leaderboard_last_updated_repos
+- leaderboard_most_stars_repos
+- leaderboard_most_watchers_repos
+- leaderboard_most_repos
+- leaderboard_most_repos_by_language
+- leaderboard_languages
+
+`GET /analytics/profiles?login=<GITHUB_LOGIN_NAME>`
+
+### Users Endpoint
+
+`GET /users/<GITHUB_LOGIN_NAME>`
+
+### Repos Endpoint
+
+`GET /repos/<GITHUB_LOGIN_NAME>`
+
 ## TODO
 
 - [ ] ensure only unique repos for a particular user are added (no duplications)
