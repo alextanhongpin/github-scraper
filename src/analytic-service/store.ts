@@ -124,7 +124,7 @@ const Store = ({ config, db }: { config: any, db: any }): AnalyticStore => {
       }, {})
 
     const sortedLanguages: Language[] = Object.values(languages).sort(sortNumberDescending('score'))
-    return take(limit)(sortedLanguages)
+    return take(limit)(...sortedLanguages)
   }
 
   // leaderboardUserWithMostRepos returns the users with the most repos
@@ -138,11 +138,13 @@ const Store = ({ config, db }: { config: any, db: any }): AnalyticStore => {
         }
 
         const repoDict = docs.reduce((acc: RepoDictionary, doc: Repo) => {
-          const login = doc.owner.login
+          const { login, avatar_url, html_url } = doc.owner
           if (!acc[login]) {
             acc[login] = {
               count: 0,
-              login
+              login,
+              avatar_url,
+              html_url
             }
           }
           acc[login].count += 1
@@ -152,7 +154,7 @@ const Store = ({ config, db }: { config: any, db: any }): AnalyticStore => {
         const repoArr = Object.values(repoDict)
           .sort(sortNumberDescending('count'))
 
-        return resolve(take(limit)(repoArr))
+        return resolve(take(limit)(...repoArr))
       })
     })
   }
