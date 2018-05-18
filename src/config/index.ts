@@ -10,7 +10,7 @@
 
 // The default config of the application that is obtained from environment variables
 
-import* as convict from 'convict'
+import * as convict from 'convict'
 
 const config = convict({
   port: {
@@ -87,7 +87,7 @@ const config = convict({
       doc: 'Feature toggle to enable the profile cron for running',
       format: Boolean,
       default: false,
-      env: 'CRON_PROFILe_ENABLE'
+      env: 'CRON_PROFILE_ENABLE'
     }
   }
 })
