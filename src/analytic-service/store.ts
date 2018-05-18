@@ -245,7 +245,7 @@ const Store = ({ config, db }: { config: any, db: any }): AnalyticStore => {
   async function getAnalytics(type: string): Promise<any> {
     // user_count
     return new Promise((resolve, reject) => {
-      db.analytics.find({ type }, (error: Error, docs: any) => {
+      db.analytics.findOne({ type }, (error: Error, docs: any) => {
         error ? reject(error) : resolve(docs)
       })
     })
