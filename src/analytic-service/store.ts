@@ -170,11 +170,14 @@ const Store = ({ config, db }: { config: any, db: any }): AnalyticStore => {
         }
         const loginWithRepo = docs.reduce((acc: any, doc: Repo) => {
           const lang = doc.language
-          const login = doc.owner.login
+          const { login, avatar_url, html_url } = doc.owner
           if (!lang) return acc
 
           if (!acc[login]) {
-            acc[login] = {}
+            acc[login] = {
+              avatar_url,
+              html_url
+            }
           }
           if (!acc[login][lang]) {
             acc[login][lang] = 0
