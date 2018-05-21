@@ -51,9 +51,14 @@ async function main() {
   const profileCron = cronService.profile(config.get('cron.profile'))
   const analyticCron = cronService.analytic(config.get('cron.analytic'))
 
+  if (config.get('cron.triggerAnalytic')) {
+    analyticService.buildAnalytics()
+  }
+
   if (config.get('cron.enableFetch')) {
     fetchCron.start()
   }
+
   if (config.get('cron.enableUpdate')) {
     updateCron.start()
   }

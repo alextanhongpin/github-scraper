@@ -14,7 +14,7 @@ import * as moment from 'moment'
 import { generatePages } from '../helper/page'
 import { flatten } from '../helper/list'
 
-import { 
+import {
   RepoModel,
   Repo,
   Repos,
@@ -31,7 +31,7 @@ import {
   AllResponse,
   AllByUserRequest,
   AllByUserResponse,
-  CreateRequest, 
+  CreateRequest,
   CreateResponse,
   CheckExistRequest,
   CheckExistResponse,
@@ -58,10 +58,10 @@ import {
 const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel => {
   const githubCreatedAt = config.get('githubCreatedAt')
 
-  async function fetchAllForUser ({ totalCount, login }: FetchAllForUserRequest): Promise<FetchAllForUserResponse> {
+  async function fetchAllForUser({ totalCount, login }: FetchAllForUserRequest): Promise<FetchAllForUserResponse> {
     const pages = generatePages(totalCount, config.get('perPage'))
-    const options = { 
-      concurrency: 20 
+    const options = {
+      concurrency: 20
     }
     const repos: any[] = await Bluebird.all(pages)
       .map((page: number) => store.fetchAll({ page, login }), options)
@@ -69,7 +69,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     return flatten(repos)
   }
 
-  async function fetchAllForUsers (ctx: any, { users }: FetchAllForUsersRequest): Promise<FetchAllForUsersResponse> {
+  async function fetchAllForUsers(ctx: any, { users }: FetchAllForUsersRequest): Promise<FetchAllForUsersResponse> {
     const options = {
       concurrency: 5
     }
@@ -79,15 +79,15 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     return { repos: flatten(repos) }
   }
 
-  async function createMany ({ repos }: CreateManyRequest): Promise<CreateManyResponse> {
-      // For each repos...
+  async function createMany({ repos }: CreateManyRequest): Promise<CreateManyResponse> {
+    // For each repos...
     const validatedRepos = await Bluebird.all(repos).map(async (repo: any) => {
       // Check if the repo exist
-      const existingRepo = await store.checkExist({ 
+      const existingRepo = await store.checkExist({
         id: repo.id,
         login: repo.owner && repo.owner.login
       })
-      
+
       // Update existing repo
       if (existingRepo) {
         console.log(`#repoExist with id = ${repo.id} login = ${existingRepo.owner && existingRepo.owner.login} `)
@@ -101,8 +101,8 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
       // And return the new repos
       return repo
     }, {
-      concurrency: 50
-    })
+        concurrency: 50
+      })
     const newRepos = validatedRepos.filter((nonNull: any) => nonNull !== null) // Take only new users
     console.log(`#newRepos = ${newRepos.length}`)
     if (!newRepos.length) {
@@ -114,7 +114,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
 
   // Fires the Github's Search API to get the current repos by user's login, compare it with the current repo
   // that is local and updates it before returning them
-  async function getReposAndUpdate (ctx: any, req: GetReposAndUpdateRequest): Promise<GetReposAndUpdateResponse> {
+  async function getReposAndUpdate(ctx: any, req: GetReposAndUpdateRequest): Promise<GetReposAndUpdateResponse> {
     // Fetch the latest repos from Github - this only takes into consideration the user's repo, forked repos 
     // will be excluded
     const reposStatus = await store.getRepos(req)
@@ -129,7 +129,7 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
       return {
         items: reposStatus.items
       }
-    } 
+    }
 
     // Get the last current created
     const lastRepo = await store.getLastRepoByLogin({ login: req.login })
@@ -152,8 +152,8 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     const pages = Array(numberOfPages - 1).fill(0).map((_, i) => {
       return i + 2
     })
-    const options = { 
-      concurrency: 5 
+    const options = {
+      concurrency: 5
     }
     const restReposPromises = await Bluebird.all(pages).map((page: number) => {
       const params = {
@@ -166,19 +166,19 @@ const Model = ({ store, config }: { store: RepoStore, config: any }): RepoModel 
     }, options)
 
     const restRepos: Repo[] = restReposPromises
-    .map((response) => response.items)
-    .reduce((acc: Repo[], repos: Repo[]) => {
-      return acc.concat(repos)
-    }, [])
-    .filter((nonNull: any) => nonNull !== null)
+      .map((response) => response.items)
+      .reduce((acc: Repo[], repos: Repo[]) => {
+        return acc.concat(repos)
+      }, [])
+      .filter((nonNull: any) => nonNull !== null)
 
-     const createReposPromises: Repo[] = await Promise.all(repos.items.concat(restRepos).map(async(repo: Repo) => {
-        try {
-          const data: CreateOneResponse = await store.createOne({ repo })
-          return data.repo
-        } catch(error) {
-          return null
-        }
+    const createReposPromises: Repo[] = await Promise.all(repos.items.concat(restRepos).map(async (repo: Repo) => {
+      try {
+        const data: CreateOneResponse = await store.createOne({ repo })
+        return data.repo
+      } catch (error) {
+        return null
+      }
     }))
 
     const createdRepos: Repos = createReposPromises.filter((nonNull: any) => nonNull !== null)

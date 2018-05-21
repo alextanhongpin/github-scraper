@@ -77,6 +77,12 @@ const config = convict({
       default: false,
       env: 'CRON_ANALYTIC_ENABLE'
     },
+    triggerAnalytic: {
+      doc: 'Trigger the build analytic when the application starts',
+      format: Boolean,
+      default: false,
+      env: 'CRON_ANALYTIC_TRIGGER'
+    },
     profile: {
       doc: 'The crontab for the profile cron - indicates how frequent to build user profiles and matches',
       format: String,
